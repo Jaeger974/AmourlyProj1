@@ -6,27 +6,39 @@ body {
 }
 
 .header{
-    text-align: center;
-    padding: 20px;
-    background: #A02c3e;
-    color: white;
-    border-radius: 0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    margin: 0;
-    
+  text-align: center;
+  padding: 20px;
+  background: #A02c3e;
+  color: white;
+  border-radius: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  margin: 0;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 300px;  
+
+  }
+
+
+.header-tagline{
+    font-size: 20px;
+    margin-top: 50px;
+    font-weight: normal;
 }
 
 .nav-bar {
-    margin-top: 10px;
+    margin-top: 80px;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 20px;
     border: 3px solid white;
     padding: 10px;
+    max-width: 500px;
     border-radius: 10px;
     background: rgba(209, 204, 204, 0.1);
-
 }
 
 .nav-link{
@@ -136,23 +148,18 @@ body {
   transition-delay: 0.1s; /* Slight delay so users split first, then heart pops */
 }
 
-/* .intro-section {
-
-    padding: 50px 20px;
-    background: #f7d6dc;
-    color: white;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+.intro-section{
+    color: #333;
+    text-align: center;
+    border-radius: 0;
     margin: 0;
-    position: relative;
-    z-index: 1;
-    overflow: hidden;
-    height: 100%;
-    min-height: 450px;
+    width: 100%, 90%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-} */
+
+}
 
 .slider {
   position: relative;
@@ -179,38 +186,50 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.65;
+  opacity: 0.6;
 }
-
-
 
 .overlay-text {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: white;
   text-align: center;
   z-index: 2;
+  width: 100%, 90%;
+  color: rgb(163, 56, 49);
+}
+
+.overlay-text h2 {
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+.overlay-text p {
+  font-size: 24px;
+  font-weight: 500;
+ 
 }
 
 .dots {
-  position: absolute;
+  position: relative;
   bottom: 15px;
-  left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 10px;
-  top: 900px;
+  justify-content: center;
+  align-items: center;
+  width: auto;
+  gap: 15px;
   height: 20px;
+  border: #00704a 2px solid;
   z-index: 3;
-  border: #00704a solid 2px;
 }
 
 .dot {
   width: 12px;
   height: 12px;
-  background-color: rgba(255,255,255,0.6);
+  background-color: rgba(100, 100, 100, 0.884);
   border-radius: 50%;
   cursor: pointer;
   transition: background-color 0.3s ease;
