@@ -87,7 +87,7 @@ body {
   height: 100%;
   object-fit: cover;
   z-index: 0;
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
 .included-features{
@@ -108,8 +108,7 @@ body {
     text-align: left;
     color: #A02c3e;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    transform: (1.5s);
-
+    transition: transform 1.2s ease;
 }
 
 .feature-tile:hover{
@@ -125,8 +124,12 @@ body {
 }   
 .featuretext{
     font-size: 16px;
-    color: #555;
+    color: #9e1e1e;
     margin-top: 10px;
+}
+
+.subscription-tiers-section{
+    margin: 40px 0;
 }
 
 .tiersection{
@@ -147,47 +150,41 @@ body {
 .tiersection li {
     margin-bottom: 10px;
     font-size: 16px;
-    color: #555;
-
+    color: #34a12a;
 }
 
-.btn-crush{
-    background-color: #f8d77c;
-    color: #333;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-}
-
-.btn-love{
-    background-color: #6a82fb;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-}
-
-/* The Button Styling (Adjust to match your theme) */
-.btn-passion {
+.btn {
     position: relative; /* Essential for positioning hearts */
     padding: 12px 24px;
-    background: transparent;
-    border: 2px solid #A02c3e;
-    color: #A02c3e;
     font-weight: bold;
     cursor: pointer;
     overflow: visible; /* Allows hearts to float outside the button */
     transition: all 0.3s ease;
-    border-radius: 4px; /* Optional */
+    border-radius: 4px; 
 }
 
-.btn-passion:hover {
+#btn-crush{
+    background-color: #f8d77c;
+    color: #333;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+#btn-love{
+    background-color: #6a82fb;
+    color: #fff;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+/* The Button Styling (Adjust to match your theme) */
+#loveButton {
+    background: transparent;
+    border: 2px solid #A02c3e;
+    color: #A02c3e;
+}
+
+#loveButton:hover {
     background: #A02c3e;
     color: white;
 }
@@ -232,9 +229,9 @@ body {
 }
 
 
-.btn-love:hover,
-.btn-crush:hover {
-    background-color: #9e1f1f;;
+#btn-love:hover,
+#btn-crush:hover {
+    background-color: #9e1f1f;
     color: #fff;
 }
 
