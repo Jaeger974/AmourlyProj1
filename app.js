@@ -17,6 +17,7 @@ const __dirname = dirname(__filename);
 const app = express();
 const saltRounds = 10;
 
+
 env.config();
 
 const db = new pg.Client({
@@ -80,7 +81,19 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/HowitWorks", (req, res) => {
-    res.render("PS_HowitWorks");
+
+  const faqs = [
+    { question: "How often are emails sent?", answer: "You can choose the frequency of your poem deliveries during the signup process. Options typically include monthly, bi-monthly, or quarterly deliveries." },
+    { question: "Can I customize my Amore?", answer: "Yes! You can provide details about your relationship and preferences to help our poets create personalized verses that resonate with your unique story." },
+    { question: "What if I want to change my subscription plan?", answer: "You can easily upgrade or downgrade your subscription plan at any time through your account settings." },
+    { question: "Is there a trial period available?", answer: "We currently do not offer a trial period, but we do have a satisfaction guarantee. If you're not happy with your subscription, please contact our support team for assistance." },
+    { question: "How do I cancel my subscription?", answer: "You can cancel your subscription at any time through your account settings free of charge. Please note that we do not offer refunds for already delivered poems." },
+    { question: "Can I gift a subscription to someone else?", answer: "Yes, you can purchase a subscription as a gift for someone else. During the signup process, simply provide the recipient's details for delivery." },
+    { question: "How is my information used?", answer: "We take your privacy seriously and use industry-standard security measures to protect your personal information. Your recipient's email will include your name and email so they can know who sent the Amore." }, 
+    { question: "Can I pause my subscription?", answer: "No, we do not currently offer subscription pauses but we do offer effortless recipient changes. Perhaps your mother, aunt or an old flame might appreciate an Amore." }
+  ];
+
+  res.render("PS_HowitWorks", { faqs });
 });
 
 app.get("/payment", (req, res) => {

@@ -20,9 +20,15 @@
             <img src="/static_files/couple6.jpg" id="img-couple1" alt="couple_together_img" width="100" height="100">
             
             <div class="included-features">
+
+                <div class="feature-tile" id="standard-feature">
+                    <h3 class="feature-subtitle">What is an Amore?</h3>
+                    <p class="featuretext">An Amore is a written expression of your feelings towards that special someone. It can take the form of a poem, a letter, or a message, designed to express your feelings in a unique and meaningful way.</p>
+                </div>
+
                 <div class="feature-tile" id="feature1">
                     <h3 class="feature-subtitle">Personalized Poems</h3>
-                    <p class="featuretext">Each poem can be uniquely crafted based on your relationship details and preferences, ensuring a heartfelt and meaningful experience or Poems can be chosen from our carefully curated libraries of romantic expressions.</p>
+                    <p class="featuretext">Each Amore can be uniquely crafted based on your relationship details and preferences, ensuring a heartfelt and meaningful experience or your Amore can be chosen from our carefully curated libraries of romantic expressions.</p>
                 </div>
 
                 <div class="feature-tile" id="feature2">
@@ -39,52 +45,71 @@
     </div>
 
 </div>
-<div class="subscription-tiers-section">
 
-    <div class="tiersection" id="tier1">
-        <h3 class="tiertitle">Young Crush Package</h3>
-            <ul>
-                <li>Monthly "Amore" delivery from our curated libraries</li>
-                <li>Email delivery to your Significant Other</li>
-                <li>Animated digital display card displaying each poem</li>
-            </ul>
+<div class="tiersection">
+    <div class="faq">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+            <% faqs.forEach((item, index) => { %>
+            <div class="faq-item">
+                <button class="faq-question" data-index="<%= index %>">
+                    <%= item.question %>
+                </button>
 
-            <a href="/newsignup?choice=option1">
-                <button class="btn" id="btn-crush" onclick="location.href='/newsignup'">Start Your Crush</button>
-            </a>
-    </div>
-
-    <div class="tiersection" id="tier2">
-        <h3 class="tiertitle">New Love Affair Package</h3>
-            <ul>
-                <li>Monthly "Amore" delivery from our curated libraries including haikus, sonnet, Ballad, Psalm, vow, Limerick and many more</li>
-                <li>Email delivery to your Significant Other</li>
-                <li>A digital display card within the email with each poem</li>
-                <li>Brief "Amore" background description sent to your email to ignite passion and connectivity</li>
-            </ul>
-
-            <a href="/newsignup?choice=option2">
-                <button class="btn" id="btn-love" onclick="location.href='/newsignup'">Start Your New Love Affair</button>
-            </a>
-    </div>
-
-    <div class="tiersection" id="tier3">
-        <h3 class="tiertitle">Passionate Outpour Package</h3>
-            <ul>
-                <li>Monthly "Amore" delivery from our curated libraries including haikus, sonnet, Ballad, Psalm, vow, Limerick and many more</li>    
-                <li>Email delivery to your Significant Other with a sensational animation to display your "Amore"</li>
-                <li>A premium display card sent to your SO's address with your "Amore" displayed in fine detail creating lasting memories!</li>
-                <li>In-depth "Amore" background description sent to your email to ignite passion and connectivity</li>
-                <li>Entry into a monthly prize draw to win a romantic couples weekend
-                    away and a year's subscription for free when you send us a photo of you both with your gifts</li>
-            </ul>
-
-            <a href="/newsignup?choice=option3">
-                <button id="loveButton" class="btn" onclick="location.href='/newsignup'">Start Your Passionate Outpour</button>
-            </a>
+                <div class="faq-answer">
+                    <p><%= item.answer %></p>
+                </div>
+            </div>
+        <% }) %>
 
     </div>
 </div>
+
+    <div class="tiersection">
+
+        <div class="tiersection" id="tier1">
+            <h3 class="tiertitle">Young Crush Package</h3>
+                <ul>
+                    <li>Monthly "Amore" delivery from our curated libraries</li>
+                    <li>Email delivery to your Significant Other</li>
+                    <li>Animated digital display card displaying each poem</li>
+                </ul>
+                <div class="button-container">
+                <a href="/newsignup?choice=option1">
+                    <button class="btn" id="btn-crush" onclick="location.href='/newsignup'">Start Your Crush</button>
+                </a></div>
+        </div>
+
+        <div class="tiersection" id="tier2">
+            <h3 class="tiertitle">New Love Affair Package</h3>
+                <ul>
+                    <li>Monthly "Amore" delivery from our curated libraries including haikus, sonnet, Ballad, Psalm, vow, Limerick and many more</li>
+                    <li>Email delivery to your Significant Other</li>
+                    <li>A digital display card within the email with each poem</li>
+                    <li>Brief "Amore" background description sent to your email to ignite passion and connectivity</li>
+                </ul>
+                <div class="button-container">
+                <a href="/newsignup?choice=option2">
+                    <button class="btn" id="btn-love" onclick="location.href='/newsignup'">Start Your New Love Affair</button>
+                </a></div>
+        </div>
+
+        <div class="tiersection" id="tier3">
+            <h3 class="tiertitle">Passionate Outpour Package</h3>
+                <ul>
+                    <li>Monthly "Amore" delivery from our curated libraries including haikus, sonnet, Ballad, Psalm, vow, Limerick and many more</li>    
+                    <li>Email delivery to your Significant Other with a sensational animation to display your "Amore"</li>
+                    <li>A premium display card sent to your SO's address with your "Amore" displayed in fine detail creating lasting memories!</li>
+                    <li>In-depth "Amore" background description sent to your email to ignite passion and connectivity</li>
+                    <li>Entry into a monthly prize draw to win a romantic couples weekend
+                        away and a year's subscription for free when you send us a photo of you both with your gifts</li>
+                </ul>
+                <div class="button-container">
+                <a href="/newsignup?choice=option3">
+                    <button id="loveButton" class="btn" onclick="location.href='/newsignup'">Start Your Passionate Outpour</button>
+                </a></div>
+
+        </div>
+    </div>
 
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
@@ -139,6 +164,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </script>
 
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    try {
+      const questions = document.querySelectorAll(".faq-question");
+      const answers = document.querySelectorAll(".faq-answer");
+
+      if (!questions.length || !answers.length) {
+        throw new Error("FAQ elements not found in the DOM");
+      }
+
+      questions.forEach((question, i) => {
+        question.addEventListener("click", () => {
+          answers.forEach((ans, j) => {
+            if (i === j) {
+              ans.classList.toggle("open");
+            } else {
+              ans.classList.remove("open");
+            }
+          });
+        });
+      });
+
+    } catch (err) {
+      console.error("FAQ accordion error:", err);
+    }
+  });
+
+</script>
 
 <%- include("partials/PS_footer.ejs") %>
 </body>

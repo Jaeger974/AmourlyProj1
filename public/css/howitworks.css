@@ -55,7 +55,7 @@ body {
 .HIWintro{
   position: relative;
   width: 100%;
-  height: 580px;
+  height: auto;
   overflow: hidden;
   margin-bottom: 20px;
   border-radius: 8px;
@@ -73,7 +73,7 @@ body {
     text-align: center;
     margin: 30px 0 10px 0;
     font-size: x-large;
-    color: #333;
+    color: #c05a5a;
     z-index: 2;
     opacity: 1;
     position: relative;
@@ -128,6 +128,61 @@ body {
     margin-top: 10px;
 }
 
+.faq {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #f8f1e4; /* parchment base */
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  font-family: "Georgia", serif;
+}
+
+.faq-item {
+  border-bottom: 2px solid rgba(120, 90, 50, 0.25);
+  padding: 12px 0;
+}
+
+.faq-question {
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 10px 0;
+  color: #a8702b;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.faq-question:hover {
+  color: #b97c31;
+  text-shadow: 0 0 6px rgba(255, 230, 180, 0.6);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform-origin: top;
+  transition:
+    max-height 0.5s ease,
+    opacity 0.4s ease,
+    padding 0.4s ease;
+  padding: 0 0;
+  color: #4a3a2a;
+  line-height: 1.6;
+    font-size: 19px;
+    font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
+.faq-answer.open {
+  max-height: 500px;
+  opacity: 1;
+  padding: 10px 0;
+}
+
 .subscription-tiers-section{
     margin: 40px 0;
 }
@@ -141,6 +196,11 @@ body {
     justify-content: center;
 }
 
+.button-container{
+    text-align: center;
+    margin-top: 15px;
+}
+
 .tiertitle{
     text-align: center;
     margin-bottom: 15px;
@@ -151,6 +211,26 @@ body {
     margin-bottom: 10px;
     font-size: 16px;
     color: #34a12a;
+}
+
+#tier1{
+    background: #fff5f2;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#tier2{
+    background: #fff0e6;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+#tier3{
+    background:  #ffe6e1;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .btn {
