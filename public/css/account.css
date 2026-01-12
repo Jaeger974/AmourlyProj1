@@ -93,10 +93,19 @@ body {
     justify-content: center;
     padding: 10px;
     width: 400px;
-    
-
+    align-items: center;
 }
 
+#account-edit-options{
+    border: 1px solid #c81bdf;
+    width: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    margin-top: 100px;
+}
 
 #current-subscription-details {
     width: 50%;
@@ -117,16 +126,6 @@ body {
 }
 
 
-#account-edit-options{
-    border: 1px solid #c81bdf;
-    width: auto;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-    margin-top: 20px;
-}
 
 #account-edit-options > button {
     margin: 5px 0;

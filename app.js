@@ -44,7 +44,7 @@ app.use(
      httpOnly: true,
      secure: process.env.NODE_ENV === "production", // only HTTPS in prod
     sameSite: "lax" 
-   }
+   }// 60 MINUTE SESSION DURATION
 })
 );
 

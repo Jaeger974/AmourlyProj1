@@ -18,8 +18,6 @@
         </div>
 
     <div class="account-top-row">
-
-
         <div id="personal-details">
             <h3>Your Details</h3>
             <p>Name: <%= signupData.firstname %> <%= signupData.lastname %></p>
@@ -27,18 +25,32 @@
             <p>Username: <%= signupData.username %></p>
 
         <div id="account-edit-options">
-            <h3>Edit Your Account:</h3>
+            <h3>Edit Your Details:</h3>
             <button class="edit-details-button">Change Personal Details</button>
             <button class="change-password-button">Change Password</button>
-            <button class="manage-subscription-button">Upgrade Subscription</button>
+            <button class="manage-subscription-button">Change Subscription</button>
         </div>
 
         </div>
+        <% 
+  const subTypeLabels = {
+    option1: "School-groud Crush Subscription",
+    option2: "New Love Subscription",
+    option3: "Passionate Outpour Subscription"
+  };
+
+  const freqLabels = {
+    option1: "Fortnightly",
+    option2: "Monthly",
+    option3: "Every 2 Months",
+    option4: "Every 6 Months"
+  };
+%>
 
         <div id="current-subscription-details">
             <h3>Your Current Subscription</h3>
-            <p>Subscription Type: <%= signupData2.sub_type %></p>
-                <p>Frequency: <%= signupData2.freq_type %></p>
+            <p>Subscription Type: <%= subTypeLabels[signupData2.sub_type] %></p>
+                <p>Frequency: <%= freqLabels[signupData2.freq_type] %></p>
 
             <p>Next Amourly:</p>
             <p id="preview-poem">How do I love thee? Let me count the ways.
