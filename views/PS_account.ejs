@@ -26,6 +26,13 @@
             <p>Email: <%= signupData.email %></p>
             <p>Username: <%= signupData.username %></p>
 
+        <div id="account-edit-options">
+            <h3>Edit Your Account:</h3>
+            <button class="edit-details-button">Change Personal Details</button>
+            <button class="change-password-button">Change Password</button>
+            <button class="manage-subscription-button">Upgrade Subscription</button>
+        </div>
+
         </div>
 
         <div id="current-subscription-details">
@@ -57,7 +64,7 @@
         <div id="delivery-details">
             <h3>Recipient Details</h3>
 
-            <p>Delivery Email: </p><span id="editable-text-email"><%= signupData.recipient_email %></span>
+            <p>Delivery Email: </p><span id="editable-text-email"><%= signupData.recipientEmail %></span>
             <input type="text" id="edit-input-email" style="display:none;" name="recipient-email"/>
             <button class="edit-button-email"onclick="toggleEditEmail()">Edit Email</button>
             <button class="edit-btnemail" onclick="saveEditEmail()" style="display:none;" id="save-btnemail">Save New Email</button>
@@ -81,31 +88,21 @@
         </div>
 
         <div class="account-second-row">
+            <div id="subscription-history">
+                <h3>Subscription History</h3>
+                <ul id="history-list">
+                    <li>June 15, 2025 - Passionate Outpour - Billed </li>
+                    <li>May 15, 2025 - Passionate Outpour - Billed $29.99</li>
+                    <li>April 15, 2025 - Passionate Outpour - Billed $29.99</li>
+                </ul>
+            </div>
 
-        <div id="account-edit-options">
-            <h3>Edit Your Account:</h3>
-            <button class="edit-details-button">Change Personal Details</button>
-            <button class="change-password-button">Change Password</button>
-            <button class="manage-subscription-button">Upgrade Subscription</button>
-        </div>
-
-
-
-        <div id="subscription-history">
-            <h3>Subscription History</h3>
-            <ul id="history-list">
-                <li>June 15, 2025 - Passionate Outpour - Billed </li>
-                <li>May 15, 2025 - Passionate Outpour - Billed $29.99</li>
-                <li>April 15, 2025 - Passionate Outpour - Billed $29.99</li>
-            </ul>
-        </div>
-
-        <div id="payment-methods">
-            <h3 id="payment-title">Payment Methods</h3>
-            <p>Next Payment due: 29.99 GBP</p>
-            <p>Visa ending in 1234</p>
-            <button class="update-payment-button">Update Payment Method</button>
-        </div>
+            <div id="payment-methods">
+                <h3 id="payment-title">Payment Methods</h3>
+                <p>Next Payment due: £ <%= price %> </p>
+                <p>Visa ending in 1234</p>
+                <button class="update-payment-button">Update Payment Method</button>
+            </div>
     </div>
 
 
@@ -118,10 +115,9 @@
 
 
     <div id="delete-account-section">
-        <button class="delete-account-button" id="delBtn">Delete Account</button>
+        <button class="delete-account-button" id="delBtn">Cancel Subscription / Delete Account</button>
 </div>
-    
-
+</div>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
 
@@ -197,5 +193,6 @@ function toggleEdit() {
   </script>
 
 <%- include("partials/PS_footer.ejs") %>
+
 </body>
 </html>

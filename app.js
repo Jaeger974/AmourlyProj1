@@ -44,7 +44,7 @@ app.use(
      httpOnly: true,
      secure: process.env.NODE_ENV === "production", // only HTTPS in prod
     sameSite: "lax" 
-   }// 60 MINUTE SESSION DURATION
+   }
 })
 );
 
@@ -114,6 +114,7 @@ function ensureAuthenticated(req, res, next) {
 }
 
 app.get("/yourdashboard", ensureAuthenticated, async (req, res) => {
+
   try {
     const email = req.user.email; // comes from deserializeUser
     const result = await db.query("SELECT * FROM logins WHERE email = $1", [email]);
@@ -122,7 +123,9 @@ app.get("/yourdashboard", ensureAuthenticated, async (req, res) => {
     res.render("PS_account", {
       signupData: result.rows[0],
       signupData2: result2.rows[0],
-      savedDate
+      savedDate,
+      price: req.session.price
+
     });
   } catch (err) {
     console.error("DB error:", err);
@@ -204,14 +207,21 @@ app.post("/login",
   })
 );
 
-app.post('/account', (req, res) => {
-  if (req.body.newText) {
-    const newText = req.body.newText;
-    console.log('Updated text:', newText);
+app.post('/yourdashboard', (req, res) => {
+  console.log("Dashboard session:", req.session);
+  const { newText, date, finalPrice } = req.body;
+
+  if (finalPrice) {
+    req.session.price = finalPrice;
+    console.log("Price saved:", finalPrice);
   }
-  if (req.body.date) {
-    savedDate = req.body.date;
-    console.log('Date saved:', savedDate);
+
+  if (newText) {
+    console.log("Updated text:", newText);
+  }
+
+  if (date) {
+    console.log("Date saved:", date);
   }
 
   res.sendStatus(200);
@@ -248,6 +258,8 @@ app.post('/account', (req, res) => {
 
 
 app.post("/newsignup", async (req, res) => {
+const { finalPrice } = req.body;
+req.session.price = finalPrice;
   console.log("Received signup data:", req.body);
 
   const { 
@@ -308,6 +320,7 @@ app.post("/newsignup", async (req, res) => {
         console.error("Login error:", err);
         return res.redirect("/login");
       }
+       req.session.price = finalPrice;
 
       // Store both sets of data in session
       req.session.signupData = { 

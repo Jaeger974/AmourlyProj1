@@ -157,6 +157,7 @@
     </div>
 
     <!-- Submit -->
+     <input type="hidden" name="finalPrice" id="finalPriceInput">
     <button type="submit" id="submitBtn">Continue to payment</button>
     
 
@@ -227,8 +228,10 @@
       const finalPrice = (basePrice * multiplier).toFixed(2);
 
       priceValue.textContent = "£" + finalPrice + " per Month";
+    
+    document.getElementById("finalPriceInput").value = finalPrice;
     }
-
+    
     radios.forEach(radio => radio.addEventListener("change", updatePrice));
     freqRadios.forEach(radio => radio.addEventListener("change", updatePrice));
 

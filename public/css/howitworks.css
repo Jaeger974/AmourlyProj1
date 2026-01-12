@@ -234,11 +234,11 @@ body {
 }
 
 .btn {
-    position: relative; /* Essential for positioning hearts */
+    position: relative;
     padding: 12px 24px;
     font-weight: bold;
     cursor: pointer;
-    overflow: visible; /* Allows hearts to float outside the button */
+    overflow: visible;
     transition: all 0.3s ease;
     border-radius: 4px; 
 }
@@ -257,7 +257,6 @@ body {
     transition: background-color 0.3s ease;
 }
 
-/* The Button Styling (Adjust to match your theme) */
 #loveButton {
     background: transparent;
     border: 2px solid #A02c3e;
@@ -269,10 +268,10 @@ body {
     color: white;
 }
 
-/* The Heart Particle */
+
 .heart-bubble {
     position: absolute;
-    bottom: 100%; /* Starts exactly at top edge of button */
+    bottom: 100%; 
     left: 50%;
     width: 20px;
     height: 20px;

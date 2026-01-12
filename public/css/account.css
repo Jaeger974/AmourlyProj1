@@ -92,7 +92,7 @@ body {
     border: 3px solid rgb(12, 123, 216);
     justify-content: center;
     padding: 10px;
-    width: 450px;
+    width: 400px;
     
 
 }
@@ -119,12 +119,13 @@ body {
 
 #account-edit-options{
     border: 1px solid #c81bdf;
-    width: 450px;
+    width: auto;
     padding: 10px;
     display: flex;
     flex-direction: column;
     gap: 10px;
     align-items: center;
+    margin-top: 20px;
 }
 
 #account-edit-options > button {
@@ -140,6 +141,7 @@ body {
     justify-content: center;
     padding: 10px;
     align-content: space-between;
+    width: 400px;
 
 }
 
