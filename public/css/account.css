@@ -107,6 +107,21 @@ body {
     margin-top: 100px;
 }
 
+.edit-details-button, .change-password-button, .manage-subscription-button{
+    background: #A02c3e;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease;
+
+    &:hover {
+        background: #8b252f;
+    }
+}
+
 #current-subscription-details {
     width: 50%;
     border: 3px solid rgb(216, 168, 12);
@@ -141,6 +156,12 @@ body {
     padding: 10px;
     align-content: space-between;
     width: 400px;
+
+}
+
+#edit-input-email, #edit-input{
+    width: 80%;
+    margin-left: 30px;
 
 }
 
@@ -182,10 +203,9 @@ body {
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
+    margin-left: 80px;
     margin-top: 10px;
-    justify-content: center;
-    align-items: center;
-    width: 50%;
+    width: 150px;
     transition: background 0.3s ease;
 
     &:hover {
@@ -193,6 +213,28 @@ body {
     }
 }
 
+.edit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.edit-button-hidden, .edit-btnemail{
+    background: #A02c3e;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: 80px;
+    margin-top: 10px;
+    width: 150px;
+    transition: background 0.3s ease;
+
+    &:hover {
+        background: #8b252f;
+    }
+}
 
 #date-container > button{
     background: #A02c3e;

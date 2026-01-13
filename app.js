@@ -48,8 +48,6 @@ app.use(
 })
 );
 
-let savedDate = '';
-
 app.use(express.static('public'));
 app.use(express.json());
 app.set('view engine', 'ejs');
@@ -123,7 +121,6 @@ app.get("/yourdashboard", ensureAuthenticated, async (req, res) => {
     res.render("PS_account", {
       signupData: result.rows[0],
       signupData2: result2.rows[0],
-      savedDate,
       price: req.session.price
 
     });
@@ -209,38 +206,33 @@ app.post("/login",
 
 app.post('/yourdashboard', (req, res) => {
   console.log("Dashboard session:", req.session);
-  const { newText, date, finalPrice } = req.body;
+  const { newText, finalPrice } = req.body;
 
   if (finalPrice) {
     req.session.price = finalPrice;
     console.log("Price saved:", finalPrice);
   }
-
   if (newText) {
     console.log("Updated text:", newText);
   }
 
-  if (date) {
-    console.log("Date saved:", date);
-  }
+
+  const changerecipientemail = req.body['recipient-email'];
+  const changerecipientaddress = req.body['account-address'];
+
+  db.query("UPDATE addresses SET recipient_email = $1, account_address = $2 WHERE account_email = $3",
+    [changerecipientemail, changerecipientaddress, req.user.email])
+    .then(() => {
+      console.log("Address info updated in DB");
+    })
+    .catch((err) => {
+      console.error("DB from dashboard update error:", err);
+    });
 
   res.sendStatus(200);
 });
 
 //MAKE SURE THIS WORKS AND DOESNT COLLIDE OR INTERFERE WITH OTHER POST REQUESTS INTO DATABASE
-// app.post("/account", async (req, res) => {
-//   const account_address = req.body['recipient-email'];
-//   const recipient_address = req.body['recipient-post'];
-//   const sub_type = req.body['sub_type'];
-
-//   try {
-//     await db.query("INSERT INTO addresses (receipient-email, recipientpost, sub_type) WHERE ($1, $2)",
-//       [account_address, recipient_address, sub_type]);
-//     res.redirect("/account");
-//   } catch (err) {
-//     console.log(err);
-//   }
-// });
 
 
 // //THIS NEEDS FIXING - ALLOW FOR LINKING EJS FILE ITEMS TO DATABASE ITEMS    

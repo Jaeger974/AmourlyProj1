@@ -17,37 +17,39 @@
             <p>Manage your subscription and Personal details here.</p>
         </div>
 
-    <div class="account-top-row">
-        <div id="personal-details">
-            <h3>Your Details</h3>
-            <p>Name: <%= signupData.firstname %> <%= signupData.lastname %></p>
-            <p>Email: <%= signupData.email %></p>
-            <p>Username: <%= signupData.username %></p>
+<div class="account-top-row">
+    <div id="personal-details">
+        <h3>Your Details</h3>
+        <p>Name: <%= signupData.firstname %> <%= signupData.lastname %></p>
+        <p>Email: <%= signupData.email %></p>
+        <p>Username: <%= signupData.username %></p>
 
-        <div id="account-edit-options">
-            <h3>Edit Your Details:</h3>
-            <button class="edit-details-button">Change Personal Details</button>
-            <button class="change-password-button">Change Password</button>
-            <button class="manage-subscription-button">Change Subscription</button>
-        </div>
+            <div id="account-edit-options">
+                <h3>Edit Your Details:</h3>
+                <button class="edit-details-button" onclick="location.href='/'">Change Personal Details</button>
+                <button class="change-password-button" onclick="location.href='/changepassword'">Change Password</button>
+                <button class="manage-subscription-button" onclick="location.href='/accountchanges'">Change Subscription</button>
+            </div>
 
-        </div>
-        <% 
-  const subTypeLabels = {
-    option1: "School-groud Crush Subscription",
-    option2: "New Love Subscription",
-    option3: "Passionate Outpour Subscription"
-  };
+    </div>
 
-  const freqLabels = {
-    option1: "Fortnightly",
-    option2: "Monthly",
-    option3: "Every 2 Months",
-    option4: "Every 6 Months"
-  };
-%>
 
-        <div id="current-subscription-details">
+    <% 
+    const subTypeLabels = {
+        option1: "School-groud Crush Subscription",
+        option2: "New Love Subscription",
+        option3: "Passionate Outpour Subscription"
+    };
+
+    const freqLabels = {
+        option1: "Fortnightly",
+        option2: "Monthly",
+        option3: "Every 2 Months",
+        option4: "Every 6 Months"
+    };
+    %>
+
+    <div id="current-subscription-details">
             <h3>Your Current Subscription</h3>
             <p>Subscription Type: <%= subTypeLabels[signupData2.sub_type] %></p>
                 <p>Frequency: <%= freqLabels[signupData2.freq_type] %></p>
@@ -69,35 +71,25 @@
                 I shall but love thee better after death.
                 <strong>- Elizabeth Barrett Browning</strong> </p>
             <p>Next Billing Date:</p>
-
-
-        </div>    
+    </div>    
         
-        <div id="delivery-details">
-            <h3>Recipient Details</h3>
+    <div id="delivery-details">
+        <h3>Recipient Details</h3>
 
-            <p>Delivery Email: </p><span id="editable-text-email"><%= signupData.recipientEmail %></span>
-            <input type="text" id="edit-input-email" style="display:none;" name="recipient-email"/>
+        <p>Delivery Email: </p><span id="editable-text-email"><%= signupData2.recipient_email %></span>
+        <input type="text" id="edit-input-email" style="display:none;" name="recipient-email"/>
             <button class="edit-button-email"onclick="toggleEditEmail()">Edit Email</button>
             <button class="edit-btnemail" onclick="saveEditEmail()" style="display:none;" id="save-btnemail">Save New Email</button>
-<br/><br/>
 
-            <p>Address:</p><span id="editable-text-address"><%= signupData2.recipientAddress || `N/A` %></span>
-            <input type="text" id="edit-input" style="display:none;" name="recipientpost"/>
-            <button class="edit-button"onclick="toggleEdit()">Edit Address</button>
-            <button class="edit-button" onclick="saveEdit()" style="display:none;" id="save-btn">Save New Address</button>
-<br/><br/>
-            <div id="date-container">
-            <p>Next Subscription Delivery date: </p>
-            <span id="date-display"><%= savedDate || 'No date selected' %></span>
-            <input type="date" id="date-picker" style="display:none;" name="next-delivery" />
-            <button class="edit-button" id="edit-date-btn">Edit Next Delivery Date</button>
-            <button class="edit-button" id="save-date-btn" style="display:none;">Save New Date</button>
-            </div>
-        </div>
+        <p>Address:</p><span id="editable-text-address"><%= signupData2.recipient_address || `Not applicable to current subscription` %></span>
+        <input type="text" id="edit-input" style="display:none;" name="recipientpost"/>
+            <button class="edit-button" id="edit-address-btn"onclick="toggleEdit()" <%= signupData2.sub_type !== 'option3' ? 'disabled' : '' %>>Edit Address</button>
+            <button class="edit-button-hidden" onclick="saveEdit()" style="display:none;" id="save-btn">Save New Address</button>
+
+    </div>
 
 
-        </div>
+</div>
 
         <div class="account-second-row">
             <div id="subscription-history">
@@ -142,17 +134,20 @@ function toggleEdit() {
     const textSpan = document.getElementById('editable-text-address');
     const input = document.getElementById('edit-input');
     const saveBtn = document.getElementById('save-btn');
+    const editBtn = document.getElementById('edit-address-btn');
 
     input.value = textSpan.textContent;
     textSpan.style.display = 'none';
     input.style.display = 'inline';
     saveBtn.style.display = 'inline';
+    editBtn.style.display = 'none';
   };
 
   function saveEdit() {
     const textSpan = document.getElementById('editable-text-address');
     const input = document.getElementById('edit-input');
     const saveBtn = document.getElementById('save-btn');
+    const editBtn = document.getElementById('edit-address-btn');
 
     console.log('Saving new text:', input.value);
 
@@ -160,6 +155,7 @@ function toggleEdit() {
     textSpan.style.display = 'inline';
     input.style.display = 'none';
     saveBtn.style.display = 'none';
+    editBtn.style.display = 'inline';
 
     // Optional: Send updated text to server
     fetch('/account', {
@@ -176,17 +172,20 @@ function toggleEdit() {
     const textSpan = document.getElementById('editable-text-email');
     const input = document.getElementById('edit-input-email');
     const saveBtnEmail = document.getElementById('save-btnemail');
+    const editBtnEmail = document.querySelector('.edit-button-email');
 
     input.value = textSpan.textContent;
     textSpan.style.display = 'none';
     input.style.display = 'inline';
     saveBtnEmail.style.display = 'inline';
+    editBtnEmail.style.display = 'none';
   };
 
   function saveEditEmail() {
     const textSpan = document.getElementById('editable-text-email');
     const input = document.getElementById('edit-input-email');
     const saveBtnEmail = document.getElementById('save-btnemail');
+    const editBtnEmail = document.querySelector('.edit-button-email');
 
     console.log('Saving new text:', input.value);
 
@@ -194,6 +193,7 @@ function toggleEdit() {
     textSpan.style.display = 'inline';
     input.style.display = 'none';
     saveBtnEmail.style.display = 'none';
+    editBtnEmail.style.display = 'inline';
 
     // Optional: Send updated text to server
     fetch('/account', {
@@ -202,6 +202,22 @@ function toggleEdit() {
       body: JSON.stringify({ newText: input.value })
     });
   }
+  </script>
+
+  <script>
+    //This needs more backend work to fully function
+    const deleteBtn = document.getElementById('delBtn');
+
+    deleteBtn.addEventListener('click', () => {
+      const confirmation = confirm('Are you sure you want to cancel your subscription and delete your account? This action cannot be undone.');
+      if (confirmation) {
+        window.location.href = '/delete-account';
+      }
+    });
+  </script>
+
+  <script>
+
   </script>
 
 <%- include("partials/PS_footer.ejs") %>
