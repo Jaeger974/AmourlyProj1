@@ -113,21 +113,22 @@ function ensureAuthenticated(req, res, next) {
 
 app.get("/yourdashboard", ensureAuthenticated, async (req, res) => {
 
-  try {
-    const email = req.user.email; // comes from deserializeUser
+try {
+    const email = req.user.email;
     const result = await db.query("SELECT * FROM logins WHERE email = $1", [email]);
     const result2 = await db.query("SELECT * FROM addresses WHERE account_email = $1", [email]);
 
     res.render("PS_account", {
       signupData: result.rows[0],
       signupData2: result2.rows[0],
-      price: req.session.price
-
+      price: req.session.price,
+      updated: req.query.updated === "true"   // <-- success flag
     });
   } catch (err) {
     console.error("DB error:", err);
     res.status(500).send("Server error");
   }
+
 });
 
 
@@ -141,6 +142,29 @@ app.get("/changepassword", (req, res) => {
 
 app.get("/forgotpassword", (req, res) => {
     res.render("PS_forgotpassword");
+});
+
+app.get("/changesubscription", ensureAuthenticated, async (req, res) => {
+  try {
+    const email = req.user.email;
+
+    const result = await db.query(
+      "SELECT sub_type, freq_type FROM addresses WHERE account_email = $1",
+      [email]
+    );
+
+    const subscription = result.rows[0];
+
+    res.render("changesubscription", {
+      currentSub: subscription.sub_type,
+      currentFreq: subscription.freq_type,
+      signupData2: result.rows[0]
+    });
+
+  } catch (err) {
+    console.error("Error loading subscription:", err);
+    res.status(500).send("Server error");
+  }
 });
 
 app.get("/newsignup", (req, res) => {
@@ -220,7 +244,7 @@ app.post('/yourdashboard', (req, res) => {
   const changerecipientemail = req.body['recipient-email'];
   const changerecipientaddress = req.body['account-address'];
 
-  db.query("UPDATE addresses SET recipient_email = $1, account_address = $2 WHERE account_email = $3",
+  db.query("UPDATE addresses SET recipient_email = $1, recipient_address = $2 WHERE account_email = $3",
     [changerecipientemail, changerecipientaddress, req.user.email])
     .then(() => {
       console.log("Address info updated in DB");
@@ -231,6 +255,67 @@ app.post('/yourdashboard', (req, res) => {
 
   res.sendStatus(200);
 });
+
+app.post("/changesubscription", ensureAuthenticated, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const { sub_type, freq_type, address1, address2, city, postcode } = req.body;
+
+    const validSubs = ["option1", "option2", "option3"];
+    const validFreqs = ["option1", "option2", "option3", "option4"];
+
+    if (!validSubs.includes(sub_type) || !validFreqs.includes(freq_type)) {
+      return res.status(400).send("Invalid subscription type or frequency");
+    }
+
+        let fullAddress = null;
+
+    if (sub_type === "option3") {
+      fullAddress = [address1, address2, city, postcode]
+        .filter(Boolean)
+        .join(", ");
+    }
+
+    // Pricing model
+    const pricing = {
+      option1: 3.99,
+      option2: 9.99,
+      option3: 24.99
+    };
+
+    const freqMultiplier = {
+      option1: 2.4,
+      option2: 1,
+      option3: 0.7,
+      option4: 0.6
+    };
+
+    const newPrice = pricing[sub_type] * freqMultiplier[freq_type];
+    req.session.price = newPrice.toFixed(2);
+
+    if (fullAddress) {
+      await db.query(
+        "UPDATE addresses SET sub_type = $1, freq_type = $2, recipient_address = $3 WHERE account_email = $4",
+        [sub_type, freq_type, fullAddress, email]
+      );
+    } else {
+      await db.query(
+        "UPDATE addresses SET sub_type = $1, freq_type = $2 WHERE account_email = $3",
+        [sub_type, freq_type, email]
+      );
+    }
+
+
+    res.redirect("/yourdashboard?updated=true");
+
+  } catch (err) {
+    console.error("Error updating subscription:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+
+
 
 //MAKE SURE THIS WORKS AND DOESNT COLLIDE OR INTERFERE WITH OTHER POST REQUESTS INTO DATABASE
 
@@ -301,7 +386,7 @@ req.session.price = finalPrice;
 
     // Insert into addresses
     const result2 = await db.query(
-      "INSERT INTO addresses (account_address, recipient_address, sub_type, recipient_email, account_email, freq_type) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+      "INSERT INTO addresses (receipient_address, recipient_address, sub_type, recipient_email, account_email, freq_type) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
       [fullAddress, fullAddressRecipient, choice, recipientEmail, email, freqchoice]
     );
 

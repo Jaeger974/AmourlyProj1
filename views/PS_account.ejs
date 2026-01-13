@@ -11,6 +11,12 @@
 
 <%- include("partials/PS_header.ejs") %>
 
+<% if (updated) { %>
+  <div class="success-banner">
+    Subscription changes updated successfully!
+  </div>
+<% } %>
+
 <div class="account-container">
         <div id="account-overview">
             <h2>Welcome to Your Account</h2>
@@ -28,7 +34,7 @@
                 <h3>Edit Your Details:</h3>
                 <button class="edit-details-button" onclick="location.href='/'">Change Personal Details</button>
                 <button class="change-password-button" onclick="location.href='/changepassword'">Change Password</button>
-                <button class="manage-subscription-button" onclick="location.href='/accountchanges'">Change Subscription</button>
+                <button class="manage-subscription-button" onclick="location.href='/changesubscription'">Change Subscription</button>
             </div>
 
     </div>
