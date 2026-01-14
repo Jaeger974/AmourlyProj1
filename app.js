@@ -228,33 +228,40 @@ app.post("/login",
   })
 );
 
-app.post('/yourdashboard', (req, res) => {
+app.post('/yourdashboard', async (req, res) => {
   console.log("Dashboard session:", req.session);
-  const { newText, finalPrice } = req.body;
+  const {finalPrice } = req.body;
 
   if (finalPrice) {
     req.session.price = finalPrice;
     console.log("Price saved:", finalPrice);
   }
-  if (newText) {
-    console.log("Updated text:", newText);
+
+  try {
+    const email = req.user.email;
+
+    const newRecipientEmail = req.body['recipient-email'];
+    const newRecipientAddress = req.body['recipient-address'];
+
+    // Update only the fields that were actually provided
+    await db.query(
+      `UPDATE addresses 
+       SET recipient_email = COALESCE($1, recipient_email),
+           recipient_address = COALESCE($2, recipient_address)
+       WHERE account_email = $3`,
+      [newRecipientEmail, newRecipientAddress, email]
+    );
+
+    res.sendStatus(200);
+
+  } catch (err) {
+    console.error("Dashboard update error:", err);
+    res.status(500).send("Server error");
   }
 
-
-  const changerecipientemail = req.body['recipient-email'];
-  const changerecipientaddress = req.body['account-address'];
-
-  db.query("UPDATE addresses SET recipient_email = $1, recipient_address = $2 WHERE account_email = $3",
-    [changerecipientemail, changerecipientaddress, req.user.email])
-    .then(() => {
-      console.log("Address info updated in DB");
-    })
-    .catch((err) => {
-      console.error("DB from dashboard update error:", err);
-    });
-
-  res.sendStatus(200);
 });
+
+
 
 app.post("/changesubscription", ensureAuthenticated, async (req, res) => {
   try {
@@ -268,15 +275,6 @@ app.post("/changesubscription", ensureAuthenticated, async (req, res) => {
       return res.status(400).send("Invalid subscription type or frequency");
     }
 
-        let fullAddress = null;
-
-    if (sub_type === "option3") {
-      fullAddress = [address1, address2, city, postcode]
-        .filter(Boolean)
-        .join(", ");
-    }
-
-    // Pricing model
     const pricing = {
       option1: 3.99,
       option2: 9.99,
@@ -293,18 +291,25 @@ app.post("/changesubscription", ensureAuthenticated, async (req, res) => {
     const newPrice = pricing[sub_type] * freqMultiplier[freq_type];
     req.session.price = newPrice.toFixed(2);
 
-    if (fullAddress) {
-      await db.query(
-        "UPDATE addresses SET sub_type = $1, freq_type = $2, recipient_address = $3 WHERE account_email = $4",
-        [sub_type, freq_type, fullAddress, email]
-      );
-    } else {
-      await db.query(
-        "UPDATE addresses SET sub_type = $1, freq_type = $2 WHERE account_email = $3",
-        [sub_type, freq_type, email]
-      );
-    }
+    let fullAddress = null;
 
+if (sub_type === "option3") {
+  fullAddress = [address1, address2, city, postcode]
+    .filter(Boolean)
+    .join(", ");
+
+  await db.query(
+    "UPDATE addresses SET sub_type = $1, freq_type = $2, recipient_address = $3 WHERE account_email = $4",
+    [sub_type, freq_type, fullAddress, email]
+  );
+} else {
+  await db.query(
+    "UPDATE addresses SET sub_type = $1, freq_type = $2 WHERE account_email = $3",
+    [sub_type, freq_type, email]
+  );
+
+  console.log("Full address being saved:", fullAddress);
+}
 
     res.redirect("/yourdashboard?updated=true");
 

@@ -29,6 +29,7 @@
         <p>Name: <%= signupData.firstname %> <%= signupData.lastname %></p>
         <p>Email: <%= signupData.email %></p>
         <p>Username: <%= signupData.username %></p>
+        <p>Address: <%= signupData2.account_address %> </p>
 
             <div id="account-edit-options">
                 <h3>Edit Your Details:</h3>
@@ -88,7 +89,7 @@
             <button class="edit-btnemail" onclick="saveEditEmail()" style="display:none;" id="save-btnemail">Save New Email</button>
 
         <p>Address:</p><span id="editable-text-address"><%= signupData2.recipient_address || `Not applicable to current subscription` %></span>
-        <input type="text" id="edit-input" style="display:none;" name="recipientpost"/>
+        <input type="text" id="edit-input" style="display:none;" name="recipient-address">
             <button class="edit-button" id="edit-address-btn"onclick="toggleEdit()" <%= signupData2.sub_type !== 'option3' ? 'disabled' : '' %>>Edit Address</button>
             <button class="edit-button-hidden" onclick="saveEdit()" style="display:none;" id="save-btn">Save New Address</button>
 
@@ -164,11 +165,15 @@ function toggleEdit() {
     editBtn.style.display = 'inline';
 
     // Optional: Send updated text to server
-    fetch('/account', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ newText: input.value })
-    });
+fetch('/yourdashboard', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    "recipient-address": input.value,
+    "recipient-email": document.getElementById("editable-text-email").textContent
+  })
+});
+
   }
   </script>
 
@@ -202,11 +207,14 @@ function toggleEdit() {
     editBtnEmail.style.display = 'inline';
 
     // Optional: Send updated text to server
-    fetch('/account', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ newText: input.value })
-    });
+fetch('/yourdashboard', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    "recipient-email": input.value,
+    "recipient-address": document.getElementById("editable-text-address").textContent
+  })
+});
   }
   </script>
 
