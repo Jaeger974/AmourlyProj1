@@ -1,33 +1,37 @@
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Force absolute path to .env
+dotenv.config({ path: join(__dirname, ".env") });
+
+console.log("Loaded DATABASE_URL:", process.env.DATABASE_URL);
+
+
 import express from "express";
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import bodyParser from "body-parser";
-import pg from "pg";
 import bcrypt from "bcrypt";
 import session from "express-session";
 import passport from "passport";
 import GoogleStrategy from "passport-google-oauth2";
 import { Strategy } from "passport-local";
-import env from "dotenv";
+
+import db from "./db.js";
+import UserService from "./services/userService.js";
+import AddressService from "./services/addressService.js";
+import SubscriptionService from "./services/subscriptionService.js";
+
+console.log("ENV PATH CHECK:", join(__dirname, ".env"));
+
 
 const PORT = process.env.PORT || 3000;
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 const app = express();
 const saltRounds = 10;
 
 
-env.config();
-
-const db = new pg.Client({
-  user: process.env.PG_USER,
-  host: process.env.PG_HOST,
-  database: process.env.PG_DATABASE,
-  password: process.env.PG_PASSWORD,
-  port: process.env.PG_PORT,
-});
-db.connect();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -55,6 +59,40 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Simple in-memory cache for user data
+const userCache = new Map();
+
+// Helper to set cache with TTL
+function cacheUser(email, data) {
+  userCache.set(email, {
+    data,
+    expires: Date.now() + 1000 * 30 // 30 seconds TTL
+  });
+}
+
+// Helper to get cached user
+function getCachedUser(email) {
+  const entry = userCache.get(email);
+  if (!entry) return null;
+  if (Date.now() > entry.expires) {
+    userCache.delete(email);
+    return null;
+  }
+  return entry.data;
+}
+
+// Flash message helper
+app.use((req, res, next) => {
+  res.locals.flash = req.session.flash || null;
+  delete req.session.flash;
+  next();
+});
+
+// Helper to set flash messages
+function setFlash(req, type, text) {
+  req.session.flash = { type, text };
+}
 
 
 app.get("/", (req, res) => {
@@ -94,12 +132,21 @@ app.get("/HowitWorks", (req, res) => {
   res.render("PS_HowitWorks", { faqs });
 });
 
-app.get("/payment", (req, res) => {
-  if (!req.session.signupData) {
-    return res.redirect("/newsignup"); // fallback if no data
+app.get("/payment", ensureAuthenticated, async (req, res, next) => {
+  try {
+    const email = req.user.email;
+
+    const user = await UserService.getUserByEmail(email);
+    const address = await AddressService.getAddressByAccountEmail(email);
+
+    res.render("payment", {
+      signupData: user,
+      signupData2: address,
+      price: req.session.price
+    });
+  } catch (err) {
+    next(err);
   }
-  console.log("Signup Data in Session:", req.session.signupData);
-  res.render("PS_payment", { signupData: req.session.signupData });
 });
 
 
@@ -111,33 +158,36 @@ function ensureAuthenticated(req, res, next) {
   res.redirect("/login");
 }
 
-app.get("/yourdashboard", ensureAuthenticated, async (req, res) => {
-
-try {
+app.get("/youraccount", ensureAuthenticated, async (req, res, next) => {
+  try {
     const email = req.user.email;
-    const result = await db.query("SELECT * FROM logins WHERE email = $1", [email]);
-    const result2 = await db.query("SELECT * FROM addresses WHERE account_email = $1", [email]);
+
+    const user = await UserService.getUserByEmail(email);
+    const address = await AddressService.getAddressByAccountEmail(email);
 
     res.render("PS_account", {
-      signupData: result.rows[0],
-      signupData2: result2.rows[0],
-      price: req.session.price,
-      updated: req.query.updated === "true"   // <-- success flag
+      signupData: user,
+      signupData2: address,
+      price: req.session.price
     });
   } catch (err) {
-    console.error("DB error:", err);
-    res.status(500).send("Server error");
+    next(err);
   }
-
 });
 
 
-app.get("/accountchanges", (req, res) => {
+app.get("/accountchanges", ensureAuthenticated, async (req, res) => {
+  try {
     res.render("PS_account-options");
+
+  } catch (err) {
+    console.error("DB retrieval error: Account changes", err);
+    res.status(500).send("Server error: account changes");
+  }
 });
 
-app.get("/changepassword", (req, res) => {
-    res.render("PS_changepassword");
+app.get("/changepayment", (req, res) => {
+    res.render("PS_changepayment");
 });
 
 app.get("/forgotpassword", (req, res) => {
@@ -178,15 +228,13 @@ app.get("/api/hello", (req, res) => {
 });
 
 
-app.get(
-  "/auth/google",
+app.get("/auth/google",
   passport.authenticate("google", {
     scope: ["profile", "email"],
   })
 );
 
-app.get(
-  "/auth/google/secrets",
+app.get("/auth/google/secrets",
   passport.authenticate("google", {
     successRedirect: "/yourdashboard",
     failureRedirect: "/login",
@@ -194,20 +242,22 @@ app.get(
 );
 
 
-app.get("/logout", (req, res, next) => {
-  req.logout(function(err) {
-    if (err) { return next(err); }
-
-    req.session.destroy((err) => {
-      if (err) {
-        console.error("Error destroying session:", err);
-      }
-      res.clearCookie("connect.sid");
-      // Redirect with a flag
-      res.redirect("/login?loggedout=true");
-    });
+app.get("/logout", (req, res) => {
+  req.logout(() => {
+    setFlash(req, "success", "You have been logged out");
+    res.redirect("/login");
   });
 });
+
+app.get("/login-failed", (req, res) => {
+  setFlash(req, "error", "Invalid email or password");
+  res.redirect("/login");
+});
+
+app.get("/login", (req, res) => {
+  res.render("login");
+});
+
 
 
 
@@ -218,15 +268,9 @@ app.post('/save-date', (req, res) => {
   res.status(200).send({ message: 'Date saved successfully' });
 });
 
-
-
-app.post("/login",
-  passport.authenticate("local", {
-    successRedirect: "/yourdashboard",
-    failureRedirect: "/login",
-    failureFlash: true,
-  })
-);
+app.post("/login", passport.authenticate("local", {
+  failureRedirect: "/login-failed"
+}));
 
 app.post('/yourdashboard', async (req, res) => {
   console.log("Dashboard session:", req.session);
@@ -261,7 +305,19 @@ app.post('/yourdashboard', async (req, res) => {
 
 });
 
+app.post("/payment", ensureAuthenticated, async (req, res) => {
+  try {
+    // Payment logic here...
 
+    setFlash(req, "success", "Payment completed successfully");
+    res.redirect("/yourdashboard");
+
+  } catch (err) {
+    console.error("Payment error:", err);
+    setFlash(req, "error", "Payment failed");
+    res.redirect("/payment");
+  }
+});
 
 app.post("/changesubscription", ensureAuthenticated, async (req, res) => {
   try {
@@ -319,119 +375,130 @@ if (sub_type === "option3") {
   }
 });
 
-
-
-
-//MAKE SURE THIS WORKS AND DOESNT COLLIDE OR INTERFERE WITH OTHER POST REQUESTS INTO DATABASE
-
-
-// //THIS NEEDS FIXING - ALLOW FOR LINKING EJS FILE ITEMS TO DATABASE ITEMS    
-// app.post("/account", async (req, res) => {
-//     const item = req.body.updatedItemTitle;
-
-//   try {
-//     await db.query("UPDATE items SET title = ($1) WHERE id = $2", [item, id]);
-//     res.redirect("/account");
-//   } catch (err) {
-//     console.log(err);
-//   }
-// });
-
-
-
-app.post("/newsignup", async (req, res) => {
-const { finalPrice } = req.body;
-req.session.price = finalPrice;
-  console.log("Received signup data:", req.body);
-
-  const { 
-    email, 
-    password, 
-    firstName, 
-    lastName, 
-    username, 
-    addressLine1, 
-    addressLine2, 
-    city, 
-    postcode, 
-    recipientEmail, 
-    recipientAddressLine1, 
-    recipientAddressLine2, 
-    recipientCity, 
-    recipientPostcode, 
-    recipientCountry, 
-    choice,       // subscription type radio
-    freqchoice    // frequency type radio
-  } = req.body;
-
-  // Build full addresses
-  const fullAddress = [addressLine1, addressLine2, city, postcode]
-    .filter(Boolean)
-    .join(", ");
-
-  const fullAddressRecipient = [recipientAddressLine1, recipientAddressLine2, recipientCity, recipientPostcode, recipientCountry]
-    .filter(Boolean)
-    .join(", ");
-
+app.post("/accountchanges", ensureAuthenticated, async (req, res, next) => {
   try {
-    // Hash password
-    const hash = await bcrypt.hash(password, saltRounds);
+    const email = req.user.email;
+    const { type, field1, field2, field3, field4 } = req.body;
 
-    // Check if email already exists
-    const checkResult = await db.query("SELECT * FROM logins WHERE email = $1", [email]);
-    if (checkResult.rows.length > 0) {
-      return res.redirect("/login?msg=emailExists");
+    switch (type) {
+      case "email": {
+        const updatedUser = await UserService.updateEmail(email, field1);
+        req.user.email = updatedUser.email;
+        break;
+      }
+
+      case "address": {
+        await AddressService.updateRecipientAddress(
+          email,
+          field1,
+          field2,
+          field3,
+          field4,
+          null
+        );
+        break;
+      }
+
+      case "password": {
+        await UserService.updatePassword(email, field2);
+        break;
+      }
+
+      case "username": {
+        await UserService.updateUsername(email, field1);
+        req.user.username = field1;
+        break;
+      }
+
+      case "name": {
+        await UserService.updateName(email, field1, field2);
+        req.user.firstname = field1;
+        req.user.lastname = field2;
+        break;
+      }
     }
 
-    // Insert into logins
-    const result = await db.query(
-      "INSERT INTO logins (firstname, lastname, email, password, username) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [firstName, lastName, email, hash, username]
-    );
+    res.sendStatus(200);
+  } catch (err) {
+    next(err);
+  }
+});
 
-    // Insert into addresses
-    const result2 = await db.query(
-      "INSERT INTO addresses (receipient_address, recipient_address, sub_type, recipient_email, account_email, freq_type) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-      [fullAddress, fullAddressRecipient, choice, recipientEmail, email, freqchoice]
-    );
 
-    // Authenticate user
-    const user = result.rows[0];
+//At this point i have experienced many issues with stale session data, UI not updating session, desync bugs and manual session updates here.
+// I fixed this issue by overhauling from session memory to direct DB queries except for user.id.
+// This decision was made on the basis of reducing errors and complexity.
+// This also future-proofs my app for scaling with multiple server instances.
+
+app.post("/newsignup", async (req, res, next) => {
+  try {
+    const { finalPrice } = req.body;
+
+    const {
+      email,
+      password,
+      firstName,
+      lastName,
+      username,
+      addressLine1,
+      addressLine2,
+      city,
+      postcode,
+      recipientEmail,
+      recipientAddressLine1,
+      recipientAddressLine2,
+      recipientCity,
+      recipientPostcode,
+      recipientCountry,
+      choice,
+      freqchoice
+    } = req.body;
+
+    const fullAddress = [addressLine1, addressLine2, city, postcode]
+      .filter(Boolean)
+      .join(", ");
+
+    const fullAddressRecipient = [
+      recipientAddressLine1,
+      recipientAddressLine2,
+      recipientCity,
+      recipientPostcode,
+      recipientCountry
+    ]
+      .filter(Boolean)
+      .join(", ");
+
+    const user = await UserService.createUser({
+      firstName,
+      lastName,
+      email,
+      password,
+      username
+    });
+
+    await AddressService.createAddress({
+      accountEmail: email,
+      fullAddress,
+      fullRecipientAddress: fullAddressRecipient,
+      subType: choice,
+      recipientEmail,
+      freqType: freqchoice
+    });
+
     req.login(user, (err) => {
-      if (err) {
-        console.error("Login error:", err);
-        return res.redirect("/login");
-      }
-       req.session.price = finalPrice;
-
-      // Store both sets of data in session
-      req.session.signupData = { 
-        firstName, 
-        lastName, 
-        email, 
-        username, 
-        sub_type: choice, 
-        freq_type: freqchoice, 
-        address: fullAddress, 
-        recipientAddress: fullAddressRecipient, 
-        recipientEmail 
-      };
-
-      req.session.signupData2 = result2.rows[0]; // store address record if needed
-
-      return res.redirect("/payment");
+      if (err) return next(err);
+      req.session.price = finalPrice;
+      res.redirect("/payment");
     });
 
   } catch (err) {
-    console.error("Error in signup:", err);
-    return res.status(500).send("Server error");
+    next(err);
   }
 });
 
 
 
-passport.use(
-  "local",
+passport.use("local",
   new Strategy({ usernameField: 'email' }, async function verify(email, password, cb) {
     try {
       const result = await db.query("SELECT * FROM logins WHERE email = $1", [
@@ -465,8 +532,7 @@ passport.use(
     }
   }));
 
-passport.use(
-  "google",
+passport.use("google",
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
@@ -510,5 +576,22 @@ passport.deserializeUser(async (id, cb) => {
   }
 });
 
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err);
+
+  const status = err.status || 500;
+  const message = err.message || "Server error";
+
+  // If you’re using flash:
+  if (req.session) {
+    req.session.flash = { type: "error", text: message };
+  }
+
+  if (req.originalUrl.startsWith("/api")) {
+    return res.status(status).json({ error: message });
+  }
+
+  res.status(status).redirect("back");
+});
 
 app.listen(PORT, () => console.log(`Server running at localhost:${PORT}`));

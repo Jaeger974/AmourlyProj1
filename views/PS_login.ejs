@@ -10,14 +10,15 @@
 <body>
 
 <%- include("partials/PS_header.ejs") %>
+<%- include("partials/alert") %>
 
-<% if (logoutMessage) { %>
+<% if (typeof logoutMessage !== "undefined" && logoutMessage) { %>
   <div id="logout-alert" class="alert-success">
     <%= logoutMessage %>
   </div>
 <% } %>
 
-<% if (message) { %>
+<% if (typeof message !== "undefined" && message) { %>
   <div class="alert-warning">
     <%= message %>
   </div>
