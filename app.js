@@ -2,15 +2,6 @@ import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Force absolute path to .env
-dotenv.config({ path: join(__dirname, ".env") });
-
-console.log("Loaded DATABASE_URL:", process.env.DATABASE_URL);
-
-
 import express from "express";
 import bodyParser from "body-parser";
 import bcrypt from "bcrypt";
@@ -25,7 +16,13 @@ import AddressService from "./services/addressService.js";
 import SubscriptionService from "./services/subscriptionService.js";
 
 console.log("ENV PATH CHECK:", join(__dirname, ".env"));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
+// Force absolute path to .env
+dotenv.config({ path: join(__dirname, ".env") });
+
+console.log("Loaded DATABASE_URL:", process.env.DATABASE_URL);
 
 const PORT = process.env.PORT || 3000;
 const app = express();
