@@ -74,10 +74,6 @@ app.get("/login", (req, res) => {
 });
 
 
-app.get("/register", (req, res) => {
-    res.render("PS_register");
-});
-
 app.get("/HowitWorks", (req, res) => {
 
   const faqs = [
@@ -112,23 +108,29 @@ function ensureAuthenticated(req, res, next) {
 }
 
 app.get("/yourdashboard", ensureAuthenticated, async (req, res) => {
-
-try {
+  try {
     const email = req.user.email;
-    const result = await db.query("SELECT * FROM logins WHERE email = $1", [email]);
-    const result2 = await db.query("SELECT * FROM addresses WHERE account_email = $1", [email]);
+
+    const loginResult = await db.query(
+      "SELECT * FROM logins WHERE email = $1",
+      [email]
+    );
+
+    const addressResult = await db.query(
+      "SELECT * FROM addresses WHERE account_email = $1",
+      [email]
+    );
 
     res.render("PS_account", {
-      signupData: result.rows[0],
-      signupData2: result2.rows[0],
-      price: req.session.price,
-      updated: req.query.updated === "true"   // <-- success flag
+      signupData: loginResult.rows[0],
+      signupData2: addressResult.rows[0],
+      price: req.session.price
     });
+
   } catch (err) {
-    console.error("DB error:", err);
+    console.error("Account page error:", err);
     res.status(500).send("Server error");
   }
-
 });
 
 
@@ -158,7 +160,7 @@ app.get("/changesubscription", ensureAuthenticated, async (req, res) => {
     res.render("changesubscription", {
       currentSub: subscription.sub_type,
       currentFreq: subscription.freq_type,
-      signupData2: result.rows[0]
+      signupData2: result2.rows[0]
     });
 
   } catch (err) {
@@ -340,84 +342,73 @@ if (sub_type === "option3") {
 
 
 app.post("/newsignup", async (req, res) => {
-const { finalPrice } = req.body;
-req.session.price = finalPrice;
-  console.log("Received signup data:", req.body);
+  const { finalPrice } = req.body;
 
-  const { 
-    email, 
-    password, 
-    firstName, 
-    lastName, 
-    username, 
-    addressLine1, 
-    addressLine2, 
-    city, 
-    postcode, 
-    recipientEmail, 
-    recipientAddressLine1, 
-    recipientAddressLine2, 
-    recipientCity, 
-    recipientPostcode, 
-    recipientCountry, 
-    choice,       // subscription type radio
-    freqchoice    // frequency type radio
+  const {
+    email,
+    password,
+    firstName,
+    lastName,
+    username,
+    addressLine1,
+    addressLine2,
+    city,
+    postcode,
+    recipientEmail,
+    recipientAddressLine1,
+    recipientAddressLine2,
+    recipientCity,
+    recipientPostcode,
+    recipientCountry,
+    choice,
+    freqchoice
   } = req.body;
 
-  // Build full addresses
   const fullAddress = [addressLine1, addressLine2, city, postcode]
     .filter(Boolean)
     .join(", ");
 
-  const fullAddressRecipient = [recipientAddressLine1, recipientAddressLine2, recipientCity, recipientPostcode, recipientCountry]
+  const fullAddressRecipient = [
+    recipientAddressLine1,
+    recipientAddressLine2,
+    recipientCity,
+    recipientPostcode,
+    recipientCountry
+  ]
     .filter(Boolean)
     .join(", ");
 
   try {
-    // Hash password
     const hash = await bcrypt.hash(password, saltRounds);
 
-    // Check if email already exists
-    const checkResult = await db.query("SELECT * FROM logins WHERE email = $1", [email]);
+    const checkResult = await db.query(
+      "SELECT * FROM logins WHERE email = $1",
+      [email]
+    );
+
     if (checkResult.rows.length > 0) {
       return res.redirect("/login?msg=emailExists");
     }
 
-    // Insert into logins
     const result = await db.query(
       "INSERT INTO logins (firstname, lastname, email, password, username) VALUES ($1, $2, $3, $4, $5) RETURNING *",
       [firstName, lastName, email, hash, username]
     );
 
-    // Insert into addresses
-    const result2 = await db.query(
-      "INSERT INTO addresses (receipient_address, recipient_address, sub_type, recipient_email, account_email, freq_type) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+    await db.query(
+      "INSERT INTO addresses (receipient_address, recipient_address, sub_type, recipient_email, account_email, freq_type) VALUES ($1, $2, $3, $4, $5, $6)",
       [fullAddress, fullAddressRecipient, choice, recipientEmail, email, freqchoice]
     );
 
-    // Authenticate user
     const user = result.rows[0];
+
     req.login(user, (err) => {
       if (err) {
         console.error("Login error:", err);
         return res.redirect("/login");
       }
-       req.session.price = finalPrice;
 
-      // Store both sets of data in session
-      req.session.signupData = { 
-        firstName, 
-        lastName, 
-        email, 
-        username, 
-        sub_type: choice, 
-        freq_type: freqchoice, 
-        address: fullAddress, 
-        recipientAddress: fullAddressRecipient, 
-        recipientEmail 
-      };
-
-      req.session.signupData2 = result2.rows[0]; // store address record if needed
+      req.session.price = finalPrice; // keep this if needed for payment
 
       return res.redirect("/payment");
     });
