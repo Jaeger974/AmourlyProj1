@@ -50,10 +50,11 @@
     </div>
 
     <div id="address-section" style="display:none; margin-top:20px;">
+        <p>Current Address: <%= subscription.recipient_address || 'N/A' %></p>
         <h3>Add Recipient Address Here:</h3>
 
         <label>Address Line 1</label>
-        <input type="text" name="address1" value="<%= signupData2.recipient_address %>">
+        <input type="text" name="address1">
 
         <label>Address Line 2</label>
         <input type="text" name="address2">

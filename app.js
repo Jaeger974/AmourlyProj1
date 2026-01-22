@@ -3,7 +3,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import bodyParser from "body-parser";
-import pg from "pg";
 import bcrypt from "bcrypt";
 import session from "express-session";
 import passport from "passport";
@@ -87,11 +86,18 @@ app.get("/HowitWorks", (req, res) => {
 });
 
 app.get("/payment", loadUserData, (req, res) => {
-  if (!req.session.signupData) {
-    return res.redirect("/newsignup"); // fallback if no data
-  }
-  console.log("Signup Data in Session:", req.session.signupData);
-  res.render("PS_payment", { signupData: req.session.signupData });
+  try{
+    if (!res.locals.user ) {
+      return res.redirect("/newsignup"); // fallback if no data
+    } 
+  console.log("Signup Data in Session:");
+  res.render("PS_payment");
+}catch(err)
+{
+      console.error("Error in /payment route:", err);
+      return res.status(500).send("Server error");
+    }
+
 });
 
 
@@ -119,24 +125,18 @@ app.get("/forgotpassword", (req, res) => {
 
 app.get("/changesubscription", ensureAuthenticated, loadUserData, async (req, res) => {
   try {
-    const email = req.user.email;
 
-    const result = await db.query(
-      "SELECT sub_type, freq_type FROM addresses WHERE account_email = $1",
-      [email]
-    );
-
-    const subscription = result.rows[0];
+    const subscription = res.locals.subscription;
 
     res.render("changesubscription", {
       currentSub: subscription.sub_type,
       currentFreq: subscription.freq_type,
-      signupData2: result.rows[0]
+
     });
 
   } catch (err) {
     console.error("Error loading subscription:", err);
-    res.status(500).send("Server error");
+    res.status(500).send("Server error with subscription data");
   }
 });
 
