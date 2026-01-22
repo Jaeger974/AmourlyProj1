@@ -10,6 +10,8 @@ import passport from "passport";
 import GoogleStrategy from "passport-google-oauth2";
 import { Strategy } from "passport-local";
 import env from "dotenv";
+import loadUserData from "./middlewaredbrequests.js";
+import { ensureAuthenticated } from "./middleware/auth.js";
 
 const PORT = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
@@ -17,17 +19,7 @@ const __dirname = dirname(__filename);
 const app = express();
 const saltRounds = 10;
 
-
 env.config();
-
-const db = new pg.Client({
-  user: process.env.PG_USER,
-  host: process.env.PG_HOST,
-  database: process.env.PG_DATABASE,
-  password: process.env.PG_PASSWORD,
-  port: process.env.PG_PORT,
-});
-db.connect();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -94,7 +86,7 @@ app.get("/HowitWorks", (req, res) => {
   res.render("PS_HowitWorks", { faqs });
 });
 
-app.get("/payment", (req, res) => {
+app.get("/payment", loadUserData, (req, res) => {
   if (!req.session.signupData) {
     return res.redirect("/newsignup"); // fallback if no data
   }
@@ -104,32 +96,13 @@ app.get("/payment", (req, res) => {
 
 
 
-function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  res.redirect("/login");
-}
-
-app.get("/yourdashboard", ensureAuthenticated, async (req, res) => {
-
-try {
-    const email = req.user.email;
-    const result = await db.query("SELECT * FROM logins WHERE email = $1", [email]);
-    const result2 = await db.query("SELECT * FROM addresses WHERE account_email = $1", [email]);
-
+app.get("/yourdashboard", ensureAuthenticated, loadUserData, (req, res) => {
     res.render("PS_account", {
-      signupData: result.rows[0],
-      signupData2: result2.rows[0],
-      price: req.session.price,
-      updated: req.query.updated === "true"   // <-- success flag
+      updated: req.query.updated === "true"
     });
-  } catch (err) {
-    console.error("DB error:", err);
-    res.status(500).send("Server error");
   }
+);
 
-});
 
 
 app.get("/accountchanges", (req, res) => {
@@ -144,7 +117,7 @@ app.get("/forgotpassword", (req, res) => {
     res.render("PS_forgotpassword");
 });
 
-app.get("/changesubscription", ensureAuthenticated, async (req, res) => {
+app.get("/changesubscription", ensureAuthenticated, loadUserData, async (req, res) => {
   try {
     const email = req.user.email;
 
@@ -263,7 +236,7 @@ app.post('/yourdashboard', async (req, res) => {
 
 
 
-app.post("/changesubscription", ensureAuthenticated, async (req, res) => {
+app.post("/changesubscription", ensureAuthenticated, loadUserData, async (req, res) => {
   try {
     const email = req.user.email;
     const { sub_type, freq_type, address1, address2, city, postcode } = req.body;
@@ -391,7 +364,7 @@ req.session.price = finalPrice;
 
     // Insert into addresses
     const result2 = await db.query(
-      "INSERT INTO addresses (receipient_address, recipient_address, sub_type, recipient_email, account_email, freq_type) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+      "INSERT INTO addresses (account_address, recipient_address, sub_type, recipient_email, account_email, freq_type) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
       [fullAddress, fullAddressRecipient, choice, recipientEmail, email, freqchoice]
     );
 
@@ -402,22 +375,6 @@ req.session.price = finalPrice;
         console.error("Login error:", err);
         return res.redirect("/login");
       }
-       req.session.price = finalPrice;
-
-      // Store both sets of data in session
-      req.session.signupData = { 
-        firstName, 
-        lastName, 
-        email, 
-        username, 
-        sub_type: choice, 
-        freq_type: freqchoice, 
-        address: fullAddress, 
-        recipientAddress: fullAddressRecipient, 
-        recipientEmail 
-      };
-
-      req.session.signupData2 = result2.rows[0]; // store address record if needed
 
       return res.redirect("/payment");
     });
