@@ -11,6 +11,11 @@ import { Strategy } from "passport-local";
 import env from "dotenv";
 import loadUserData from "./middlewaredbrequests.js";
 import { ensureAuthenticated } from "./middleware/auth.js";
+import { addNewUserData } from "./db/queries.js";
+import { updateSubscription, updateSubscriptionWithAddress } from "./db/queries.js";
+import { updateRecipientDetails } from "./db/queries.js";
+
+
 
 const PORT = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
@@ -236,6 +241,49 @@ app.post('/yourdashboard', async (req, res) => {
 
 
 
+app.post("/yourdashboard", ensureAuthenticated, async (req, res) => {
+  console.log("Dashboard session:", req.session);
+
+  const { finalPrice } = req.body;
+
+  if (finalPrice) {
+    req.session.price = finalPrice;
+    console.log("Price saved:", finalPrice);
+  }
+
+  try {
+    const email = req.user.email;
+
+    const newRecipientEmail = req.body["recipient-email"];
+    const newRecipientAddress = req.body["recipient-address"];
+
+    // Use your new DB helper function
+    await updateRecipientDetails(email, newRecipientEmail, newRecipientAddress);
+
+    res.sendStatus(200);
+
+  } catch (err) {
+    console.error("Dashboard update error:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+app.post("/newsignup", async (req, res) => {
+  try {
+    const { email, firstname, lastname, username, password } = req.body;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await addNewUserData(email, firstname, lastname, username, hashedPassword);
+
+    res.redirect("/payment");
+    console.log("New user registered:", email, username);
+  } catch (err) {
+    console.error("Signup error:", err);
+    res.status(500).send("Server error");
+  }
+});
+
 app.post("/changesubscription", ensureAuthenticated, loadUserData, async (req, res) => {
   try {
     const email = req.user.email;
@@ -264,25 +312,19 @@ app.post("/changesubscription", ensureAuthenticated, loadUserData, async (req, r
     const newPrice = pricing[sub_type] * freqMultiplier[freq_type];
     req.session.price = newPrice.toFixed(2);
 
+    // Build full address only for option3
     let fullAddress = null;
 
-if (sub_type === "option3") {
-  fullAddress = [address1, address2, city, postcode]
-    .filter(Boolean)
-    .join(", ");
+    if (sub_type === "option3") {
+      fullAddress = [address1, address2, city, postcode]
+        .filter(Boolean)
+        .join(", ");
 
-  await db.query(
-    "UPDATE addresses SET sub_type = $1, freq_type = $2, recipient_address = $3 WHERE account_email = $4",
-    [sub_type, freq_type, fullAddress, email]
-  );
-} else {
-  await db.query(
-    "UPDATE addresses SET sub_type = $1, freq_type = $2 WHERE account_email = $3",
-    [sub_type, freq_type, email]
-  );
+      await updateSubscriptionWithAddress(email, sub_type, freq_type, fullAddress);
 
-  console.log("Full address being saved:", fullAddress);
-}
+    } else {
+      await updateSubscription(email, sub_type, freq_type);
+    }
 
     res.redirect("/yourdashboard?updated=true");
 
@@ -291,100 +333,6 @@ if (sub_type === "option3") {
     res.status(500).send("Server error");
   }
 });
-
-
-
-
-//MAKE SURE THIS WORKS AND DOESNT COLLIDE OR INTERFERE WITH OTHER POST REQUESTS INTO DATABASE
-
-
-// //THIS NEEDS FIXING - ALLOW FOR LINKING EJS FILE ITEMS TO DATABASE ITEMS    
-// app.post("/account", async (req, res) => {
-//     const item = req.body.updatedItemTitle;
-
-//   try {
-//     await db.query("UPDATE items SET title = ($1) WHERE id = $2", [item, id]);
-//     res.redirect("/account");
-//   } catch (err) {
-//     console.log(err);
-//   }
-// });
-
-
-
-app.post("/newsignup", async (req, res) => {
-const { finalPrice } = req.body;
-req.session.price = finalPrice;
-  console.log("Received signup data:", req.body);
-
-  const { 
-    email, 
-    password, 
-    firstName, 
-    lastName, 
-    username, 
-    addressLine1, 
-    addressLine2, 
-    city, 
-    postcode, 
-    recipientEmail, 
-    recipientAddressLine1, 
-    recipientAddressLine2, 
-    recipientCity, 
-    recipientPostcode, 
-    recipientCountry, 
-    choice,       // subscription type radio
-    freqchoice    // frequency type radio
-  } = req.body;
-
-  // Build full addresses
-  const fullAddress = [addressLine1, addressLine2, city, postcode]
-    .filter(Boolean)
-    .join(", ");
-
-  const fullAddressRecipient = [recipientAddressLine1, recipientAddressLine2, recipientCity, recipientPostcode, recipientCountry]
-    .filter(Boolean)
-    .join(", ");
-
-  try {
-    // Hash password
-    const hash = await bcrypt.hash(password, saltRounds);
-
-    // Check if email already exists
-    const checkResult = await db.query("SELECT * FROM logins WHERE email = $1", [email]);
-    if (checkResult.rows.length > 0) {
-      return res.redirect("/login?msg=emailExists");
-    }
-
-    // Insert into logins
-    const result = await db.query(
-      "INSERT INTO logins (firstname, lastname, email, password, username) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [firstName, lastName, email, hash, username]
-    );
-
-    // Insert into addresses
-    const result2 = await db.query(
-      "INSERT INTO addresses (account_address, recipient_address, sub_type, recipient_email, account_email, freq_type) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-      [fullAddress, fullAddressRecipient, choice, recipientEmail, email, freqchoice]
-    );
-
-    // Authenticate user
-    const user = result.rows[0];
-    req.login(user, (err) => {
-      if (err) {
-        console.error("Login error:", err);
-        return res.redirect("/login");
-      }
-
-      return res.redirect("/payment");
-    });
-
-  } catch (err) {
-    console.error("Error in signup:", err);
-    return res.status(500).send("Server error");
-  }
-});
-
 
 
 passport.use(
