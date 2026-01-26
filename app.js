@@ -1,4 +1,6 @@
-import express from "express";
+import dotenv from "dotenv";
+dotenv.config();
+
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -8,22 +10,20 @@ import session from "express-session";
 import passport from "passport";
 import GoogleStrategy from "passport-google-oauth2";
 import { Strategy } from "passport-local";
-import env from "dotenv";
+import express from "express";
+
 import loadUserData from "./middlewaredbrequests.js";
-import { ensureAuthenticated } from "./middleware/auth.js";
-import { addNewUserData } from "./db/queries.js";
-import { updateSubscription, updateSubscriptionWithAddress } from "./db/queries.js";
-import { updateRecipientDetails } from "./db/queries.js";
-
-
+import { ensureAuthenticated } from "./auth.js";
+import { addNewUserData } from "./dbqueries.js";
+import { updateSubscription, updateSubscriptionWithAddress } from "./dbqueries.js";
+import { updateRecipientDetails } from "./dbqueries.js";
+import db from "./db.js";
 
 const PORT = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const app = express();
 const saltRounds = 10;
-
-env.config();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -51,7 +51,6 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(passport.initialize());
 app.use(passport.session());
-
 
 app.get("/", (req, res) => {
     res.render("PoetrySub");
@@ -205,41 +204,6 @@ app.post("/login",
     failureFlash: true,
   })
 );
-
-app.post('/yourdashboard', async (req, res) => {
-  console.log("Dashboard session:", req.session);
-  const {finalPrice } = req.body;
-
-  if (finalPrice) {
-    req.session.price = finalPrice;
-    console.log("Price saved:", finalPrice);
-  }
-
-  try {
-    const email = req.user.email;
-
-    const newRecipientEmail = req.body['recipient-email'];
-    const newRecipientAddress = req.body['recipient-address'];
-
-    // Update only the fields that were actually provided
-    await db.query(
-      `UPDATE addresses 
-       SET recipient_email = COALESCE($1, recipient_email),
-           recipient_address = COALESCE($2, recipient_address)
-       WHERE account_email = $3`,
-      [newRecipientEmail, newRecipientAddress, email]
-    );
-
-    res.sendStatus(200);
-
-  } catch (err) {
-    console.error("Dashboard update error:", err);
-    res.status(500).send("Server error");
-  }
-
-});
-
-
 
 app.post("/yourdashboard", ensureAuthenticated, async (req, res) => {
   console.log("Dashboard session:", req.session);

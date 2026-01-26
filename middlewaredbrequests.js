@@ -1,5 +1,5 @@
 import db from "./db.js";
-
+import env from "dotenv";
 
 // middleware/loadUserData.js
 export default async function loadUserData(req, res, next) {
