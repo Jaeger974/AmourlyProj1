@@ -11,6 +11,8 @@ import passport from "passport";
 import GoogleStrategy from "passport-google-oauth2";
 import { Strategy } from "passport-local";
 import express from "express";
+import flash from "connect-flash";
+
 
 import loadUserData from "./middlewaredbrequests.js";
 import { ensureAuthenticated } from "./auth.js";
@@ -28,6 +30,7 @@ const saltRounds = 10;
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public/static_files')));
+app.use(flash());
 
 
 app.use(
@@ -108,8 +111,13 @@ app.get("/payment", loadUserData, (req, res) => {
 
 app.get("/yourdashboard", ensureAuthenticated, loadUserData, (req, res) => {
     res.render("PS_account", {
-      updated: req.query.updated === "true"
+      updated: req.query.updated === "true",
+      user: res.locals.user,
+      subscription: res.locals.subscription
     });
+      if (!res.locals.subscription) {
+    return res.redirect("/changesubscription");
+}
   }
 );
 

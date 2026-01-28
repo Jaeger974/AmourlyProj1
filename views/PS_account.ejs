@@ -29,7 +29,7 @@
         <p>Name: <%= user.firstname %> <%= user.lastname %></p>
         <p>Email: <%= user.email %></p>
         <p>Username: <%= user.username %></p>
-        <p>Address: <%= subscription.account_address %> </p>
+        <p>Address: <%= subscription ? subscription.account_address : "No address on file" %></p>
 
             <div id="account-edit-options">
                 <h3>Edit Your Details:</h3>

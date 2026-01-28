@@ -1,5 +1,5 @@
 import db from "./db.js";
-import env from "dotenv";
+
 
 // middleware/loadUserData.js
 export default async function loadUserData(req, res, next) {
@@ -24,7 +24,7 @@ export default async function loadUserData(req, res, next) {
 
     // Make available to EJS
     res.locals.user = userResult.rows[0];
-    res.locals.subscription = addressResult.rows[0];
+    res.locals.subscription = addressResult.rows[0] || null;
     res.locals.price = req.session.price;
 
     next();
