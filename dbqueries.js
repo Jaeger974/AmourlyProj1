@@ -1,5 +1,4 @@
 import db from "./db.js";
-import env from "dotenv";
 
 
 export async function addNewUserData(email, firstName, lastName, username, hashedPassword) {
