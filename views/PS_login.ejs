@@ -10,6 +10,8 @@
 <body>
 
 <%- include("partials/PS_header.ejs") %>
+<%- include("partials/alert.ejs", { flash: flash }) %>
+
 
 <% if (logoutMessage) { %>
   <div id="logout-alert" class="alert-success">

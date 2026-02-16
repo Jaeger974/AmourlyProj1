@@ -18,8 +18,11 @@
 <div class="account-options-container">
     <h2>Change Your Personal Details</h2>
     <form action="/changedetails/update-details" method="POST" class="account-options-form">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" value="<%= user.firstname %> <%= user.lastname %>" required>
+        <label for="firstname">First Name:</label>
+        <input type="text" id="firstname" name="firstName" value="<%= user.firstname %>" required>
+        
+        <label for="lastname">Last Name:</label>
+        <input type="text" id="lastname" name="lastName" value="<%= user.lastname %>" required>
 
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" value="<%= user.email %>" required>

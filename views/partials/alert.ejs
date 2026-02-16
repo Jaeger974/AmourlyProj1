@@ -9,11 +9,25 @@
 </head>
 <body>
     
-    <% if (flash) { %>
-  <div class="alert <%= flash.type %>">
-    <%= flash.text %>
-  </div>
-<% } %>
+<div class="alert-wrapper">
+  <% if (flash && flash.text) { %>
+    <div class="alert <%= flash.type %> show" id="flash-alert">
+      <%= flash.text %>
+    </div>
+  <% } %>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const alert = document.getElementById("flash-alert");
+    if (!alert) return;
+
+    // Fade out after 3 seconds
+    setTimeout(() => {
+      alert.classList.remove("show");
+    }, 3000);
+  });
+</script>
 
 </body>
 </html>

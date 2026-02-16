@@ -10,12 +10,8 @@
 <body>
 
 <%- include("partials/PS_header.ejs") %>
+<%- include("partials/alert", { flash: flash }) %>
 
-<% if (updated) { %>
-  <div class="success-banner">
-    Subscription changes updated successfully!
-  </div>
-<% } %>
 
 <div class="account-container">
         <div id="account-overview">
@@ -33,7 +29,7 @@
 
             <div id="account-edit-options">
                 <h3>Edit Your Details:</h3>
-                <button class="edit-details-button" onclick="location.href='/'">Change Personal Details</button>
+                <button class="edit-details-button" onclick="location.href='/changedetails'">Change Personal Details</button>
                 <button class="change-password-button" onclick="location.href='/changepassword'">Change Password</button>
                 <button class="manage-subscription-button" onclick="location.href='/changesubscription'">Change Subscription</button>
             </div>
@@ -165,14 +161,15 @@ function toggleEdit() {
     editBtn.style.display = 'inline';
 
     // Optional: Send updated text to server
-fetch('/yourdashboard', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    "recipient-address": input.value,
-    "recipient-email": document.getElementById("editable-text-email").textContent
+  fetch('/account/update-address', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ address: input.value })
   })
-});
+  .then(res => res.json())
+  .then(() => {
+    window.location.href = "/yourdashboard";
+  });
 
   }
   </script>
@@ -207,15 +204,18 @@ fetch('/yourdashboard', {
     editBtnEmail.style.display = 'inline';
 
     // Optional: Send updated text to server
-fetch('/yourdashboard', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    "recipient-email": input.value,
-    "recipient-address": document.getElementById("editable-text-address").textContent
+  fetch('/account/update-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: input.value })
   })
-});
-  }
+  .then(res => res.json())
+  .then(() => {
+    window.location.href = "/yourdashboard";
+  });
+};
+
+
   </script>
 
   <script>
@@ -230,9 +230,6 @@ fetch('/yourdashboard', {
     });
   </script>
 
-  <script>
-
-  </script>
 
 <%- include("partials/PS_footer.ejs") %>
 

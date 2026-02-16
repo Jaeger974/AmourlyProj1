@@ -37,6 +37,28 @@ export async function updateUserProfile(email, firstName, lastName, username) {
   );
 }
 
+export async function updateUserAddress(emailToMatch, fullAddress, newAccountEmail = null) {
+  if (newAccountEmail) {
+    return db.query(
+      `UPDATE addresses
+       SET account_address = $1, account_email = $3
+       WHERE account_email = $2
+       RETURNING *`,
+      [fullAddress, emailToMatch, newAccountEmail]
+    );
+    
+  } else {
+    return db.query(
+      `UPDATE addresses
+       SET account_address = $1
+       WHERE account_email = $2
+       RETURNING *`,
+      [fullAddress, emailToMatch]
+    );
+  }
+}
+
+
 export async function updateRecipientDetails(email, recipientEmail, recipientAddress) {
   return db.query(
     `UPDATE addresses

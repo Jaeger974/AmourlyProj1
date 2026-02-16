@@ -12,15 +12,9 @@ import GoogleStrategy from "passport-google-oauth2";
 import { Strategy } from "passport-local";
 import express from "express";
 import flash from "connect-flash";
-
-
-
-
 import loadUserData from "./middlewaredbrequests.js";
 import { ensureAuthenticated } from "./auth.js";
-import { addNewUserData } from "./dbqueries.js";
-import { updateSubscription, updateSubscriptionWithAddress } from "./dbqueries.js";
-import { updateRecipientDetails } from "./dbqueries.js";
+import { addNewUserData, updateSubscription, updateUserAddress, updateSubscriptionWithAddress, updateRecipientDetails, updateUserProfile } from "./dbqueries.js";
 import db from "./db.js";
 
 const PORT = process.env.PORT || 3000;
@@ -57,6 +51,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(passport.initialize());
 app.use(passport.session());
 
+
 app.get("/", (req, res) => {
     res.render("PoetrySub");
 });
@@ -70,12 +65,18 @@ app.get("/login", (req, res) => {
     ? "You are successfully logged out."
     : null;
 
-  res.render("PS_login", { message, logoutMessage });
-});
-
+  res.render("PS_login", { 
+    message, 
+    logoutMessage, 
+    flash: req.flash("alert")[0] || null 
+});  
+   });
+   
 
 app.get("/register", (req, res) => {
-    res.render("PS_register");
+    res.render("PS_register", { 
+      flash: req.flash("alert")[0] || null 
+    });
 });
 
 app.get("/HowitWorks", (req, res) => {
@@ -112,10 +113,13 @@ app.get("/payment", loadUserData, (req, res) => {
 
 
 app.get("/yourdashboard", ensureAuthenticated, loadUserData, (req, res) => {
-    res.render("PS_account", {
-      updated: req.query.updated === "true",
+  const flashMessage = req.flash("alert")[0] || null;
+
+
+  res.render("PS_account", {
       user: res.locals.user,
-      subscription: res.locals.subscription
+      subscription: res.locals.subscription,
+      flash: flashMessage,
     });
       if (!res.locals.subscription) {
     return res.redirect("/changesubscription");
@@ -125,27 +129,44 @@ app.get("/yourdashboard", ensureAuthenticated, loadUserData, (req, res) => {
 
 
 
-app.get("/accountchanges", (req, res) => {
-    res.render("PS_account-options");
+app.get("/changedetails", ensureAuthenticated, loadUserData, (req, res) => {
+  const flashMessage = req.flash("alert")[0] || null;
+
+  res.render("changedetails", {
+    flash: flashMessage,
+    user: res.locals.user,
+    subscription: res.locals.subscription
+  });
 });
 
 app.get("/changepassword", (req, res) => {
-    res.render("PS_changepassword");
+  const flashMessage = req.flash("alert")[0] || null;
+
+    res.render("PS_changepassword", {
+  flash: flashMessage,
+});
+
 });
 
 app.get("/forgotpassword", (req, res) => {
-    res.render("PS_forgotpassword");
+  const flashMessage = req.flash("alert")[0] || null;
+
+    res.render("PS_forgotpassword", {
+  flash: flashMessage,
+});
 });
 
 app.get("/changesubscription", ensureAuthenticated, loadUserData, async (req, res) => {
+  const flashMessage = req.flash("alert")[0] || null;
+  
   try {
 
     const subscription = res.locals.subscription;
-
+    
     res.render("changesubscription", {
       currentSub: subscription.sub_type,
       currentFreq: subscription.freq_type,
-
+      flash: flashMessage
     });
 
   } catch (err) {
@@ -156,7 +177,12 @@ app.get("/changesubscription", ensureAuthenticated, loadUserData, async (req, re
 
 app.get("/newsignup", (req, res) => {
   const choice = req.query.choice || "option1";
-    res.render("PS_newsignupform", { choice });
+  const flashMessage = req.flash("alert")[0] || null;
+
+    res.render("PS_newsignupform", { 
+      choice, 
+      flash: flashMessage
+      });
 });
 
 //API route test for render.com free hosting
@@ -182,6 +208,8 @@ app.get(
 
 
 app.get("/logout", (req, res, next) => {
+  const flashMessage = req.flash("alert")[0] || null;
+
   req.logout(function(err) {
     if (err) { return next(err); }
 
@@ -191,7 +219,11 @@ app.get("/logout", (req, res, next) => {
       }
       res.clearCookie("connect.sid");
       // Redirect with a flag
-      res.redirect("/login?loggedout=true");
+
+      
+      res.redirect("/login?loggedout=true", {
+      flash: flashMessage,
+      });
     });
   });
 });
@@ -242,6 +274,135 @@ app.post("/yourdashboard", ensureAuthenticated, async (req, res) => {
   }
 });
 
+app.post("/account/update-email", ensureAuthenticated, async (req, res) => {
+  try {
+    const accountEmail = req.user.email;
+    const newRecipientEmail = req.body.email;
+
+    if (!newRecipientEmail || !newRecipientEmail.includes("@")) {
+      req.flash("alert", {
+        type: "error",
+        text: "Please enter a valid email address."
+      });
+      return res.status(400).json({ ok: false });
+    }
+
+    await updateRecipientDetails(
+      accountEmail,
+      newRecipientEmail,
+      null // address unchanged
+    );
+
+    req.flash("alert", {
+      type: "success",
+      text: "Your email has been updated successfully."
+    });
+
+    return res.json({ ok: true });
+
+  } catch (err) {
+    console.error("Email update error:", err);
+
+    req.flash("alert", {
+      type: "error",
+      text: "Something went wrong while updating your email."
+    });
+
+    return res.status(500).json({ ok: false });
+  }
+});
+
+app.post("/account/update-address", ensureAuthenticated, async (req, res) => {
+  try {
+    const accountEmail = req.user.email;
+    const newAddress = req.body.address;
+
+    if (!newAddress || newAddress.trim().length < 5) {
+      req.flash("alert", {
+        type: "error",
+        text: "Please enter a valid address."
+      });
+      return res.status(400).json({ ok: false });
+    }
+
+    await updateRecipientDetails(
+      accountEmail,
+      null,          // email unchanged
+      newAddress     // update address only
+    );
+
+    req.flash("alert", {
+      type: "success",
+      text: "Your address has been updated successfully."
+    });
+
+    return res.json({ ok: true });
+
+  } catch (err) {
+    console.error("Address update error:", err);
+
+    req.flash("alert", {
+      type: "error",
+      text: "Something went wrong while updating your address."
+    });
+
+    return res.status(500).json({ ok: false });
+  }
+});
+
+app.post("/changedetails/update-details", ensureAuthenticated, async (req, res) => {
+  try {
+    const originalEmail = req.user.email.trim().toLowerCase();
+    const { firstName, lastName, email, address, username } = req.body;
+
+    const newEmail = email.trim().toLowerCase();
+
+    // Basic validation
+    if (!firstName || !lastName || !newEmail || !username || !address) {
+      req.flash("alert", {
+        type: "error",
+        text: "All fields are required."
+      });
+      return res.redirect("/yourdashboard");
+    }
+
+     await updateUserProfile(originalEmail, firstName, lastName, username);
+
+    if (newEmail !== originalEmail) {
+          const addrRes = await updateUserAddress(originalEmail, address, newEmail);
+          if (!addrRes || addrRes.rowCount === 0) {
+            // No address row matched originalEmail — try matching by newEmail as fallback
+            await updateUserAddress(newEmail, address);
+          }
+        } else {
+          // Email unchanged — update address normally
+          await updateUserAddress(originalEmail, address);
+        }
+
+            console.log('New account email saved:', newEmail);
+            console.log('New name saved:', firstName, lastName);
+            console.log('New address saved:', address);
+
+    // Success flash message
+    req.flash("alert", {
+      type: "success",
+      text: "Your account details have been updated successfully."
+    });
+
+    return res.redirect("/yourdashboard");
+
+  } catch (err) {
+    console.error("Account update error:", err);
+
+    req.flash("alert", {
+      type: "error",
+      text: "Something went wrong while updating your details."
+    });
+
+    return res.redirect("/yourdashboard");
+  }
+});
+
 app.post("/newsignup", async (req, res) => {
   try {
     const { email, firstname, lastname, username, password } = req.body;
@@ -249,6 +410,11 @@ app.post("/newsignup", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await addNewUserData(email, firstname, lastname, username, hashedPassword);
+ 
+    req.flash("alert", {
+        type: "success",
+        text: "Your details have been saved. Please proceed to payment to complete your subscription!"
+      });
 
     res.redirect("/payment");
     console.log("New user registered:", email, username);
@@ -299,6 +465,11 @@ app.post("/changesubscription", ensureAuthenticated, loadUserData, async (req, r
     } else {
       await updateSubscription(email, sub_type, freq_type);
     }
+
+     req.flash("alert", {
+        type: "success",
+        text: "Your subscription has been changed successfully!"
+      });
 
     res.redirect("/yourdashboard?updated=true");
 

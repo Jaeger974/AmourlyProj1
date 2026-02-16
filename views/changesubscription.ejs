@@ -10,7 +10,8 @@
 <body>
 
 <%- include("partials/PS_header.ejs") %>
-<%- include("partials/alert") %>
+<%- include("partials/alert", { flash: flash }) %>
+
 
 <main>
     <div class="change-subscription-container">
