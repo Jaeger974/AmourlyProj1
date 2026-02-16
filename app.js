@@ -14,7 +14,7 @@ import express from "express";
 import flash from "connect-flash";
 import loadUserData from "./middlewaredbrequests.js";
 import { ensureAuthenticated } from "./auth.js";
-import { addNewUserData, updateSubscription, updateUserAddress, updateSubscriptionWithAddress, updateRecipientDetails, updateUserProfile } from "./dbqueries.js";
+import { addNewUserData, changeUserPassword, updateSubscription, updateUserAddress, updateSubscriptionWithAddress, updateRecipientDetails, updateUserProfile } from "./dbqueries.js";
 import db from "./db.js";
 
 const PORT = process.env.PORT || 3000;
@@ -479,6 +479,44 @@ app.post("/changesubscription", ensureAuthenticated, loadUserData, async (req, r
   }
 });
 
+app.post("/changepassword", ensureAuthenticated, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const { currentPassword, newPassword } = req.body;
+
+    const result = await db.query("SELECT password FROM logins WHERE email = $1", [email]);
+    const storedHashedPassword = result.rows[0].password;
+
+    const isMatch = await bcrypt.compare(currentPassword, storedHashedPassword);
+    if (!isMatch) {
+      req.flash("alert", {
+        type: "error",
+        text: "Current password is incorrect."
+      });
+      return res.redirect("/changepassword");
+    }
+
+    const newHashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    await changeUserPassword(email, newHashedPassword);
+
+    console.log("Password changed for user:", email);
+
+     req.flash("alert", {
+        type: "success",
+        text: "Your password has been changed successfully!"
+      });
+
+    res.redirect("/yourdashboard");
+
+  } catch (err) {
+    console.error("Error changing password:", err);
+    req.flash("alert", {
+      type: "error",
+      text: "Something went wrong while changing your password."
+    });
+    res.redirect("/changepassword");
+  }
+});
 
 passport.use(
   "local",

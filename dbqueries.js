@@ -58,6 +58,13 @@ export async function updateUserAddress(emailToMatch, fullAddress, newAccountEma
   }
 }
 
+export async function changeUserPassword(email, hashedPassword) {
+  return db.query(
+    `UPDATE logins SET password = $1 WHERE email = $2 RETURNING *`,
+    [hashedPassword, email]
+  );
+}
+
 
 export async function updateRecipientDetails(email, recipientEmail, recipientAddress) {
   return db.query(

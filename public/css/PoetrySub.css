@@ -637,7 +637,7 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     margin: 0;
     font-size: 14px;
-
+    border-top: 2px solid white;
     position: relative;
     bottom: 0;
     width: 100%;
