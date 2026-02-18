@@ -1,9 +1,9 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import path from 'path';
+
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import path from 'path';
 import bodyParser from "body-parser";
 import bcrypt from "bcrypt";
 import session from "express-session";
@@ -16,17 +16,19 @@ import loadUserData from "./middlewaredbrequests.js";
 import { ensureAuthenticated } from "./auth.js";
 import { addNewUserData, changeUserPassword, updateSubscription, updateUserAddress, updateSubscriptionWithAddress, updateRecipientDetails, updateUserProfile } from "./dbqueries.js";
 import db from "./db.js";
+import engine from "ejs-mate";
+
 
 const PORT = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 const app = express();
 const saltRounds = 10;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public/static_files')));
-app.use(flash());
+
 
 
 app.use(
@@ -43,13 +45,17 @@ app.use(
 })
 );
 
-app.use(express.static('public'));
-app.use(express.json());
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.engine("ejs", engine);          // activate ejs-mate
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
+app.use(express.static("public"));
+app.use(express.json());
+
+app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
+
 
 
 app.get("/", (req, res) => {
@@ -57,28 +63,12 @@ app.get("/", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  const message = req.query.msg === "emailExists"
-    ? "This email is already registered. Please log in."
-    : null;
-
-  const logoutMessage = req.query.loggedout === "true"
-    ? "You are successfully logged out."
-    : null;
-
   res.render("PS_login", { 
-    message, 
-    logoutMessage, 
-    flash: req.flash("alert")[0] || null 
-});  
-   });
-   
-
-app.get("/register", (req, res) => {
-    res.render("PS_register", { 
-      flash: req.flash("alert")[0] || null 
-    });
+    message: null,
+    flash: req.flash("alert")[0] || null
+  });
 });
-
+   
 app.get("/HowitWorks", (req, res) => {
 
   const faqs = [
@@ -176,14 +166,20 @@ app.get("/changesubscription", ensureAuthenticated, loadUserData, async (req, re
 });
 
 app.get("/newsignup", (req, res) => {
-  const choice = req.query.choice || "option1";
-  const flashMessage = req.flash("alert")[0] || null;
+  const { choice, freqchoice } = req.query;
 
-    res.render("PS_newsignupform", { 
-      choice, 
-      flash: flashMessage
-      });
+  res.render("PS_newsignupform", {
+    title: "Register New Account",
+    heading: "Join Our Poetry Subscription Service",
+    flash: req.flash("alert")[0] || null,
+
+    // If user came from howitworks.ejs, these will be strings like "option3"
+    // If not, they will be undefined → we convert to null
+    choice: choice || null,
+    freqchoice: freqchoice || null
+  });
 });
+
 
 //API route test for render.com free hosting
 app.get("/api/hello", (req, res) => {
@@ -206,28 +202,26 @@ app.get(
   })
 );
 
-
 app.get("/logout", (req, res, next) => {
-  const flashMessage = req.flash("alert")[0] || null;
-
   req.logout(function(err) {
-    if (err) { return next(err); }
+    if (err) return next(err);
+
+    // Flash BEFORE destroying session
+    req.flash("alert", {
+      type: "info",
+      text: "You have been logged out."
+    });
 
     req.session.destroy((err) => {
       if (err) {
         console.error("Error destroying session:", err);
       }
-      res.clearCookie("connect.sid");
-      // Redirect with a flag
 
-      
-      res.redirect("/login?loggedout=true", {
-      flash: flashMessage,
-      });
+      res.clearCookie("connect.sid");
+      return res.redirect("/login");
     });
   });
 });
-
 
 
 app.post('/save-date', (req, res) => {
