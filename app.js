@@ -14,7 +14,12 @@ import express from "express";
 import flash from "connect-flash";
 import loadUserData from "./middlewaredbrequests.js";
 import { ensureAuthenticated } from "./auth.js";
-import { addNewUserData, changeUserPassword, updateSubscription, updateUserAddress, updateSubscriptionWithAddress, updateRecipientDetails, updateUserProfile } from "./dbqueries.js";
+
+import { addNewUserData, changeUserPassword, deleteUserByEmail, 
+  updateSubscription, updateUserAddress, updateSubscriptionWithAddress, 
+  updateRecipientDetails, updateUserProfile, insertTransaction, getUserTransactions } from "./dbqueries.js";
+
+import { generateFakeHistory } from "./fakeHistory.js";
 import db from "./db.js";
 import engine from "ejs-mate";
 
@@ -102,13 +107,17 @@ app.get("/payment", loadUserData, (req, res) => {
 
 
 
-app.get("/yourdashboard", ensureAuthenticated, loadUserData, (req, res) => {
+app.get("/yourdashboard", ensureAuthenticated, loadUserData, async (req, res) => {
   const flashMessage = req.flash("alert")[0] || null;
+  const email = req.user.email;
+  const { rows: transactions } = await getUserTransactions(email);
 
 
   res.render("PS_account", {
       user: res.locals.user,
       subscription: res.locals.subscription,
+      user: req.user,
+      transactions, 
       flash: flashMessage,
     });
       if (!res.locals.subscription) {
@@ -224,6 +233,16 @@ app.get("/logout", (req, res, next) => {
 });
 
 
+app.get("/account/delete", ensureAuthenticated, (req, res) => {
+
+   req.flash("success", {
+      type: "info",
+      text: "You account has been successfully deleted."
+    });
+
+  res.render("/");
+});
+
 app.post('/save-date', (req, res) => {
   const { date } = req.body;
   console.log('Received date:', date);
@@ -265,6 +284,38 @@ app.post("/yourdashboard", ensureAuthenticated, async (req, res) => {
   } catch (err) {
     console.error("Dashboard update error:", err);
     res.status(500).send("Server error");
+  }
+});
+
+app.post("/account/delete", ensureAuthenticated, async (req, res) => {
+  try {
+    await deleteUserByEmail(req.user.email);
+
+    req.logout(err => {
+      if (err) {
+        console.error("Logout error:", err);
+        return res.status(500).send("Server error during logout");
+      }
+
+      req.flash("alert", {
+        type: "info",
+        text: "Your account has been deleted and you have been logged out."
+      });
+
+      req.session.destroy(err => {
+        if (err) {
+          console.error("Session destruction error:", err);
+          return res.status(500).send("Server error during session destruction");
+        }
+
+        res.clearCookie("connect.sid");
+        return res.redirect("/");
+      });
+    });
+
+  } catch (err) {
+    console.error("Account deletion error:", err);
+    return res.status(500).send("Server error during account deletion");
   }
 });
 
@@ -409,6 +460,18 @@ app.post("/newsignup", async (req, res) => {
         type: "success",
         text: "Your details have been saved. Please proceed to payment to complete your subscription!"
       });
+
+    await insertTransaction(
+      email,
+      finalPrice,                 // from your signup form
+      sub_type,                   // from addresses table
+      freq_type,                  // from addresses table
+      `Subscription charge: ${sub_type} (${freq_type})`,
+      true                        // fake
+    );
+
+  // Optional: generate 6 months of history
+  await generateFakeHistory(email, sub_type, freq_type);
 
     res.redirect("/payment");
     console.log("New user registered:", email, username);

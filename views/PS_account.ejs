@@ -26,16 +26,37 @@
         <p>Email: <%= user.email %></p>
         <p>Username: <%= user.username %></p>
         <p>Address: <%= subscription ? subscription.account_address : "No address on file" %></p>
+         <h3 id="payment-title">Payment Methods</h3>
+                <p>Next Payment due: £ <%= price %> </p>
+                <p>Visa ending in 1234</p>
+                
 
             <div id="account-edit-options">
                 <h3>Edit Your Details:</h3>
                 <button class="edit-details-button" onclick="location.href='/changedetails'">Change Personal Details</button>
                 <button class="change-password-button" onclick="location.href='/changepassword'">Change Password</button>
                 <button class="manage-subscription-button" onclick="location.href='/changesubscription'">Change Subscription</button>
+                <button class="update-payment-button">Update Payment Method</button>
             </div>
+            
+            
 
     </div>
 
+    <div id="delivery-details">
+        <h3>Recipient Details</h3>
+
+        <p>Delivery Email: </p> <span id="editable-text-email"><%= subscription.recipient_email %></span>
+        <input type="text" id="edit-input-email" style="display:none;" name="recipient-email"/>
+            <button class="edit-button-email"onclick="toggleEditEmail()">Edit Email</button>
+            <button class="edit-btnemail" onclick="saveEditEmail()" style="display:none;" id="save-btnemail">Save New Email</button>
+
+        <p>Address:</p><span id="editable-text-address"><%= subscription.recipient_address || `Not applicable to current subscription` %></span>
+        <input type="text" id="edit-input" style="display:none;" name="recipient-address">
+            <button class="edit-button" id="edit-address-btn"onclick="toggleEdit()" <%= subscription.sub_type !== 'option3' ? 'disabled' : '' %>>Edit Address</button>
+            <button class="edit-button-hidden" onclick="saveEdit()" style="display:none;" id="save-btn">Save New Address</button>
+
+    </div>
 
     <% 
     const subTypeLabels = {
@@ -76,41 +97,37 @@
             <p>Next Billing Date:</p>
     </div>    
         
-    <div id="delivery-details">
-        <h3>Recipient Details</h3>
-
-        <p>Delivery Email: </p><span id="editable-text-email"><%= subscription.recipient_email %></span>
-        <input type="text" id="edit-input-email" style="display:none;" name="recipient-email"/>
-            <button class="edit-button-email"onclick="toggleEditEmail()">Edit Email</button>
-            <button class="edit-btnemail" onclick="saveEditEmail()" style="display:none;" id="save-btnemail">Save New Email</button>
-
-        <p>Address:</p><span id="editable-text-address"><%= subscription.recipient_address || `Not applicable to current subscription` %></span>
-        <input type="text" id="edit-input" style="display:none;" name="recipient-address">
-            <button class="edit-button" id="edit-address-btn"onclick="toggleEdit()" <%= subscription.sub_type !== 'option3' ? 'disabled' : '' %>>Edit Address</button>
-            <button class="edit-button-hidden" onclick="saveEdit()" style="display:none;" id="save-btn">Save New Address</button>
-
-    </div>
-
-
 </div>
 
-        <div class="account-second-row">
-            <div id="subscription-history">
-                <h3>Subscription History</h3>
-                <ul id="history-list">
-                    <li>June 15, 2025 - Passionate Outpour - Billed </li>
-                    <li>May 15, 2025 - Passionate Outpour - Billed $29.99</li>
-                    <li>April 15, 2025 - Passionate Outpour - Billed $29.99</li>
-                </ul>
-            </div>
-
-            <div id="payment-methods">
-                <h3 id="payment-title">Payment Methods</h3>
-                <p>Next Payment due: £ <%= price %> </p>
-                <p>Visa ending in 1234</p>
-                <button class="update-payment-button">Update Payment Method</button>
-            </div>
-    </div>
+<div class="account-second-row">
+  <div id="subscription-history">
+  <h3>Subscription History</h3>
+  <table class="billing-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Amount</th>
+        <th>Description</th>
+        <th>Subscription</th>
+        <th>Frequency</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>         
+    <% transactions.forEach(t => { %>
+      <tr>
+      <td><%= t.created_at.toLocaleDateString() %></td>
+      <td>£<%= t.amount %></td>
+      <td><%= t.description %></td>
+      <td><%= t.sub_type %></td>
+      <td><%= t.freq_type %></td>
+      <td><%= t.status %></td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
+  </div>
+</div>
 
 
 
@@ -123,6 +140,10 @@
 
     <div id="delete-account-section">
         <button class="delete-account-button" id="delBtn">Cancel Subscription / Delete Account</button>
+    </div>
+
+<div class="confirmDelete">
+
 </div>
 </div>
 
@@ -214,9 +235,18 @@ function toggleEdit() {
     window.location.href = "/yourdashboard";
   });
 };
+</script>
 
-
-  </script>
+<script>
+function deleteRequest() {
+  fetch('/account/delete', {
+    method: 'POST'
+  })
+  .then(() => {
+    window.location.href = "/";
+  });
+}
+</script>
 
   <script>
     //This needs more backend work to fully function
@@ -225,7 +255,7 @@ function toggleEdit() {
     deleteBtn.addEventListener('click', () => {
       const confirmation = confirm('Are you sure you want to cancel your subscription and delete your account? This action cannot be undone.');
       if (confirmation) {
-        window.location.href = '/delete-account';
+        window.location.href = '/account/delete';
       }
     });
   </script>

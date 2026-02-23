@@ -1,3 +1,4 @@
+import e from "connect-flash";
 import db from "./db.js";
 
 
@@ -82,5 +83,43 @@ export async function addAddress(accountEmail, accountAddress, recipientAddress)
   return db.query(
     `INSERT INTO addresses (account_email, account_address, recipient_address) VALUES ($1, $2, $3) RETURNING *`,
     [accountEmail, accountAddress, recipientAddress]
+  );
+}
+
+export async function deleteUserByEmail(email) {
+  try {
+    const deletedAddresses = await db.query(
+      `DELETE FROM addresses WHERE account_email = $1 RETURNING *`,
+      [email]
+    );
+
+    const deletedLogin = await db.query(
+      `DELETE FROM logins WHERE email = $1 RETURNING *`,
+      [email]
+    );
+
+    return { deletedAddresses, deletedLogin };
+
+  } catch (err) {
+    console.error("Error deleting user:", err);
+    throw err;
+  }
+}
+
+export async function insertTransaction(email, amount, sub_type, freq_type, description, fake = true) {
+  return db.query(
+    `INSERT INTO transactions 
+       (account_email, amount, description, sub_type, freq_type, fake)
+     VALUES ($1, $2, $3, $4, $5, $6)`,
+    [email, amount, description, sub_type, freq_type, fake]
+  );
+}
+
+export async function getUserTransactions(email) {
+  return db.query(
+    `SELECT * FROM transactions
+     WHERE account_email = $1
+     ORDER BY created_at DESC`,
+    [email]
   );
 }
