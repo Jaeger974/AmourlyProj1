@@ -78,6 +78,13 @@ export async function updateRecipientDetails(email, recipientEmail, recipientAdd
   );
 }
 
+export async function updateRecipientPreferences(email, preferences) {
+  return db.query(
+    `UPDATE addresses SET preferences = $1 WHERE account_email = $2 RETURNING *`,
+    [preferences, email]
+  );
+}
+
 // Add a new address
 export async function addAddress(accountEmail, accountAddress, recipientAddress) {
   return db.query(

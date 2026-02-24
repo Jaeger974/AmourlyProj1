@@ -80,6 +80,28 @@ body {
     color: #444;
 }
 
+#recipient-detail {
+    margin: 15px;
+    padding-top: 15px;;
+}
+
+#editable-text-email, 
+#editable-text-address,
+#editable-text-prefs {
+    display: block;
+    margin-top: 9px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    font-size: 16px;
+    color: #555;
+}
+
+#recipient-detail p {
+    font-weight: 600;
+    color: #A02c3e;
+    margin-top: 20px;
+}
+
 /* ============================= */
 /* Layout Rows */
 /* ============================= */
@@ -184,7 +206,8 @@ button {
 .edit-details-button:hover,
 .change-password-button:hover,
 .manage-subscription-button:hover,
-.update-payment-button:hover {
+.update-payment-button:hover,
+.edit-button:hover {
      transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(160,44,62,0.4);
 }

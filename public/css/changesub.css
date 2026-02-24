@@ -19,6 +19,28 @@
     color: #A02c3e;
 }
 
+/* Recipient details section */
+
+.recipient-details {
+    margin-bottom: 30px;
+
+}
+
+.recipient-text {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+#email-display, #prefs-display {
+    font-size: 16px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    display: inline-block;
+    min-width: 300px;
+    margin-bottom: 18px;
+}
+
 /* ============================= */
 /* Form Styling */
 /* ============================= */
@@ -32,7 +54,7 @@
 /* Select dropdowns */
 .change-subscription-form select {
     padding: 12px 16px;
-    border-radius: 10px;
+    border-radius: 10px; 
     border: 2px solid #A02c3e;
     font-size: 16px;
     background: #fff9f5;
@@ -96,7 +118,7 @@
 /* Update Button */
 /* ============================= */
 
-.update-subscription-button {
+.change-subscription-form button {
     margin-top: 10px;
     padding: 14px 20px;
     border: none;
@@ -109,7 +131,7 @@
     transition: all 0.3s ease;
 }
 
-.update-subscription-button:hover {
+.change-subscription-form button:hover {
     background: #7d1f2f;
     transform: translateY(-2px);
     box-shadow: 0 6px 18px rgba(160,44,62,0.4);

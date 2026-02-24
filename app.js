@@ -15,7 +15,7 @@ import flash from "connect-flash";
 import loadUserData from "./middlewaredbrequests.js";
 import { ensureAuthenticated } from "./auth.js";
 
-import { addNewUserData, changeUserPassword, deleteUserByEmail, 
+import { addNewUserData, updateRecipientPreferences,changeUserPassword, deleteUserByEmail, 
   updateSubscription, updateUserAddress, updateSubscriptionWithAddress, 
   updateRecipientDetails, updateUserProfile, insertTransaction, getUserTransactions } from "./dbqueries.js";
 
@@ -233,14 +233,14 @@ app.get("/logout", (req, res, next) => {
 });
 
 
-app.get("/account/delete", ensureAuthenticated, (req, res) => {
+app.get("/deletefeedback", ensureAuthenticated, (req, res) => {
 
    req.flash("success", {
       type: "info",
       text: "You account has been successfully deleted."
     });
 
-  res.render("/");
+  res.render("/deletefeedback");
 });
 
 app.post('/save-date', (req, res) => {
@@ -287,7 +287,7 @@ app.post("/yourdashboard", ensureAuthenticated, async (req, res) => {
   }
 });
 
-app.post("/account/delete", ensureAuthenticated, async (req, res) => {
+app.post("/delete-account", ensureAuthenticated, async (req, res) => {
   try {
     await deleteUserByEmail(req.user.email);
 
@@ -309,89 +309,14 @@ app.post("/account/delete", ensureAuthenticated, async (req, res) => {
         }
 
         res.clearCookie("connect.sid");
-        return res.redirect("/");
+        console.log("User logged out and session destroyed after account deletion");
+        return res.redirect("/deletefeedback");
       });
     });
 
   } catch (err) {
     console.error("Account deletion error:", err);
     return res.status(500).send("Server error during account deletion");
-  }
-});
-
-app.post("/account/update-email", ensureAuthenticated, async (req, res) => {
-  try {
-    const accountEmail = req.user.email;
-    const newRecipientEmail = req.body.email;
-
-    if (!newRecipientEmail || !newRecipientEmail.includes("@")) {
-      req.flash("alert", {
-        type: "error",
-        text: "Please enter a valid email address."
-      });
-      return res.status(400).json({ ok: false });
-    }
-
-    await updateRecipientDetails(
-      accountEmail,
-      newRecipientEmail,
-      null // address unchanged
-    );
-
-    req.flash("alert", {
-      type: "success",
-      text: "Your email has been updated successfully."
-    });
-
-    return res.json({ ok: true });
-
-  } catch (err) {
-    console.error("Email update error:", err);
-
-    req.flash("alert", {
-      type: "error",
-      text: "Something went wrong while updating your email."
-    });
-
-    return res.status(500).json({ ok: false });
-  }
-});
-
-app.post("/account/update-address", ensureAuthenticated, async (req, res) => {
-  try {
-    const accountEmail = req.user.email;
-    const newAddress = req.body.address;
-
-    if (!newAddress || newAddress.trim().length < 5) {
-      req.flash("alert", {
-        type: "error",
-        text: "Please enter a valid address."
-      });
-      return res.status(400).json({ ok: false });
-    }
-
-    await updateRecipientDetails(
-      accountEmail,
-      null,          // email unchanged
-      newAddress     // update address only
-    );
-
-    req.flash("alert", {
-      type: "success",
-      text: "Your address has been updated successfully."
-    });
-
-    return res.json({ ok: true });
-
-  } catch (err) {
-    console.error("Address update error:", err);
-
-    req.flash("alert", {
-      type: "error",
-      text: "Something went wrong while updating your address."
-    });
-
-    return res.status(500).json({ ok: false });
   }
 });
 
@@ -484,7 +409,22 @@ app.post("/newsignup", async (req, res) => {
 app.post("/changesubscription", ensureAuthenticated, loadUserData, async (req, res) => {
   try {
     const email = req.user.email;
-    const { sub_type, freq_type, address1, address2, city, postcode } = req.body;
+
+    const {
+      "recipient-email": newRecipientEmail,
+      sub_type,
+      freq_type,
+      address1,
+      address2,
+      city,
+      postcode
+    } = req.body;
+
+    const newPreferences = req.body["recipient-preferences"];
+
+     if (newPreferences) {
+      await updateRecipientPreferences(email, newPreferences);
+    }
 
     const validSubs = ["option1", "option2", "option3"];
     const validFreqs = ["option1", "option2", "option3", "option4"];
@@ -492,7 +432,6 @@ app.post("/changesubscription", ensureAuthenticated, loadUserData, async (req, r
     if (!validSubs.includes(sub_type) || !validFreqs.includes(freq_type)) {
       return res.status(400).send("Invalid subscription type or frequency");
     }
-
     const pricing = {
       option1: 3.99,
       option2: 9.99,
@@ -509,7 +448,6 @@ app.post("/changesubscription", ensureAuthenticated, loadUserData, async (req, r
     const newPrice = pricing[sub_type] * freqMultiplier[freq_type];
     req.session.price = newPrice.toFixed(2);
 
-    // Build full address only for option3
     let fullAddress = null;
 
     if (sub_type === "option3") {
@@ -523,10 +461,16 @@ app.post("/changesubscription", ensureAuthenticated, loadUserData, async (req, r
       await updateSubscription(email, sub_type, freq_type);
     }
 
-     req.flash("alert", {
-        type: "success",
-        text: "Your subscription has been changed successfully!"
-      });
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (newRecipientEmail && emailRegex.test(newRecipientEmail)) {
+      await updateRecipientDetails(email, newRecipientEmail, null);
+}
+
+    req.flash("alert", {
+      type: "success",
+      text: "Your subscription has been changed successfully!"
+    });
 
     res.redirect("/yourdashboard?updated=true");
 
