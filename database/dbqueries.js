@@ -141,12 +141,12 @@ export async function softDeleteUserByEmail(email) {
 }
 
 
-export async function insertTransaction(email, amount, sub_type, freq_type, description, fake = true) {
+export async function insertTransaction(email, finalPrice, sub_type, freq_type, description, fake = true) {
   return db.query(
     `INSERT INTO transactions
        (account_email, amount, description, sub_type, freq_type, fake)
      VALUES ($1, $2, $3, $4, $5, $6)`,
-    [email, amount, description, sub_type, freq_type, fake]
+    [email, finalPrice, description, sub_type, freq_type, fake]
   );
 }
 
@@ -169,4 +169,57 @@ export async function saveFeedback(reason, satisfaction, returnLikelihood, comme
      RETURNING *`,
     [reason, satisfaction, returnLikelihood, comments]
   );
+}
+
+export async function getRecipientEmailByAccountEmail(email) {
+  const result = await db.query(
+    `SELECT recipient_email 
+     FROM addresses 
+     WHERE account_email = $1 
+       AND deleted_at IS NULL`,
+    [email]
+  );
+
+  return result.rows[0]?.recipient_email || null;
+}
+
+export async function saveVerificationToken(email, token) {
+  return db.query(
+    `INSERT INTO email_verification_tokens (email, token)
+     VALUES ($1, $2)`,
+    [email, token]
+  );
+}
+
+export async function getEmailByToken(token) {
+  const result = await db.query(
+    `SELECT email FROM email_verification_tokens WHERE token = $1`,
+    [token]
+  );
+  return result.rows[0]?.email || null;
+}
+
+export async function deleteToken(token) {
+  return db.query(
+    `DELETE FROM email_verification_tokens WHERE token = $1`,
+    [token]
+  );
+}
+
+export async function verifyUserEmail(email) {
+  return db.query(
+    `UPDATE logins SET email_verified = true WHERE email = $1`,
+    [email]
+  );
+}
+
+export async function getRecipientEmailByAccountEmail(email) {
+  const result = await db.query(
+    `SELECT recipient_email 
+     FROM addresses 
+     WHERE account_email = $1 
+       AND deleted_at IS NULL`,
+    [email]
+  );
+  return result.rows[0]?.recipient_email || null;
 }

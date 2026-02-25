@@ -52,7 +52,7 @@
         </div>
       <button class="edit-button" onclick="location.href='/changesubscription'">Edit Recipient Details</button>
     </div>
-    
+
     <% 
     const subTypeLabels = {
         option1: "School-groud Crush Subscription",
@@ -90,6 +90,34 @@
                 I shall but love thee better after death.
                 <strong>- Elizabeth Barrett Browning</strong> </p>
             <p>Next Billing Date:</p>
+
+              <button class="send-recipient-email-btn" data-bs-toggle="modal" data-bs-target="#sendRecipientModal">
+                Send Email to Recipient Now
+              </button>
+
+              <!-- Modal -->
+  <div class="modal fade" id="sendRecipientModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Send Email to Recipient?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <p>This will send an email to your recipient informing them of their poetry subscription.</p>
+      </div>
+
+      <div class="modal-footer">
+        <form action="/send-recipient-email" method="POST">
+          <button type="submit" class="btn btn-primary">Send Email</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
     </div>    
         
 </div>

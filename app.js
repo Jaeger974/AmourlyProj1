@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-
 import { fileURLToPath } from 'url';
 import path from 'path';
 import bodyParser from "body-parser";
@@ -11,18 +10,22 @@ import passport from "passport";
 import GoogleStrategy from "passport-google-oauth2";
 import { Strategy } from "passport-local";
 import express from "express";
+
 import flash from "connect-flash";
-import loadUserData from "./middlewaredbrequests.js";
-import { ensureAuthenticated } from "./auth.js";
-
-import { addNewUserData, saveFeedback, updateRecipientPreferences,changeUserPassword, softDeleteUserByEmail, 
+import loadUserData from "./middlewares/middlewaredbrequests.js";
+import { ensureAuthenticated } from "./routes/auth.js";
+import { getRecipientEmailByAccountEmail, addNewUserData, saveFeedback,
+  updateRecipientPreferences, changeUserPassword, softDeleteUserByEmail, 
   updateSubscription, updateUserAddress, updateSubscriptionWithAddress, 
-  updateRecipientDetails, updateUserProfile, insertTransaction, getUserTransactions } from "./dbqueries.js";
+  updateRecipientDetails, updateUserProfile, insertTransaction, getUserTransactions,
+  saveVerificationToken, getEmailByToken, deleteToken, verifyUserEmail
+} from "./database/dbqueries.js";
+import { sendEmail } from "../services/emailExampleService.js";
+import { generateToken } from "../services/tokenService.js";
+import { generateFakeHistory } from "./routes/fakeHistory.js";
+import db from "./database/db.js";
 
-import { generateFakeHistory } from "./fakeHistory.js";
-import db from "./db.js";
 import engine from "ejs-mate";
-
 
 const PORT = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
@@ -33,8 +36,6 @@ const saltRounds = 10;
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public/static_files')));
-
-
 
 app.use(
   session({
@@ -91,12 +92,19 @@ app.get("/HowitWorks", (req, res) => {
 });
 
 app.get("/payment", loadUserData, (req, res) => {
+
+  const flashMessage = req.flash("alert")[0] || null;
+
   try{
-    if (!res.locals.user ) {
-      return res.redirect("/newsignup"); // fallback if no data
-    } 
+    if (!req.isAuthenticated()) {
+  return res.redirect("/login");
+}
   console.log("Signup Data in Session:");
-  res.render("PS_payment");
+  res.render("PS_payment", {
+    user: res.locals.user,
+    subscription: res.locals.subscription,
+    flash: flashMessage,
+  });
 }catch(err)
 {
       console.error("Error in /payment route:", err);
@@ -175,7 +183,7 @@ app.get("/changesubscription", ensureAuthenticated, loadUserData, async (req, re
 });
 
 app.get("/newsignup", (req, res) => {
-  const { choice, freqchoice } = req.query;
+  const { sub_type, freq_type } = req.query;
 
   res.render("PS_newsignupform", {
     title: "Register New Account",
@@ -184,8 +192,8 @@ app.get("/newsignup", (req, res) => {
 
     // If user came from howitworks.ejs, these will be strings like "option3"
     // If not, they will be undefined → we convert to null
-    choice: choice || null,
-    freqchoice: freqchoice || null
+    sub_type: sub_type || null,
+    freq_type: freq_type || null
   });
 });
 
@@ -243,11 +251,63 @@ app.get("/deletefeedback", ensureAuthenticated, (req, res) => {
   res.render("/deletefeedback");
 });
 
+router.get("/verify-email", async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    const email = await getEmailByToken(token);
+    if (!email) {
+      return res.status(400).send("Invalid or expired token");
+    }
+
+    await verifyUserEmail(email);
+    await deleteToken(token);
+
+    req.flash("alert", {
+      type: "success",
+      text: "Your email has been verified!"
+    });
+
+    res.redirect("/account");
+
+  } catch (err) {
+    console.error("Verification error:", err);
+    res.status(500).send("Server error");
+  }
+});
+
 app.post('/save-date', (req, res) => {
   const { date } = req.body;
   console.log('Received date:', date);
   // Save to DB or session here
   res.status(200).send({ message: 'Date saved successfully' });
+});
+
+
+
+router.post("/send-recipient-email", ensureAuthenticated, async (req, res) => {
+  try {
+    const userEmail = req.user.email;
+    const recipientEmail = await getRecipientEmailByAccountEmail(userEmail);
+
+    if (!recipientEmail) {
+      req.flash("alert", { type: "danger", text: "No recipient email found." });
+      return res.redirect("/account");
+    }
+
+    await sendEmail(
+      recipientEmail,
+      "You've Been Gifted a Poetry Subscription",
+      `<p>You’ve been gifted a poetry subscription!</p>`
+    );
+
+    req.flash("alert", { type: "success", text: "Recipient email sent!" });
+    res.redirect("/account");
+
+  } catch (err) {
+    console.error("Recipient email error:", err);
+    res.status(500).send("Server error");
+  }
 });
 
 
@@ -392,38 +452,40 @@ app.post("/changedetails/update-details", ensureAuthenticated, async (req, res) 
   }
 });
 
-app.post("/newsignup", async (req, res) => {
+router.post("/newsignup", async (req, res) => {
   try {
-    const { email, firstname, lastname, username, password } = req.body;
+    const { email, firstname, lastname, username, password, finalPrice } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await addNewUserData(email, firstname, lastname, username, hashedPassword);
- 
-    req.flash("alert", {
-        type: "success",
-        text: "Your details have been saved. Please proceed to payment to complete your subscription!"
-      });
+    const newUserResult = await addNewUserData(email, firstname, lastname, username, hashedPassword);
+    const newUser = newUserResult.rows[0];
 
-    await insertTransaction(
-      email,
-      finalPrice,                 // from your signup form
-      sub_type,                   // from addresses table
-      freq_type,                  // from addresses table
-      `Subscription charge: ${sub_type} (${freq_type})`,
-      true                        // fake
-    );
+    req.login(newUser, async (err) => {
+      if (err) return res.status(500).send("Server error");
 
-  // Optional: generate 6 months of history
-  await generateFakeHistory(email, sub_type, freq_type);
+      const token = generateToken();
+      await saveVerificationToken(email, token);
 
-    res.redirect("/payment");
-    console.log("New user registered:", email, username);
+      const verifyUrl = `http://localhost:3000/verify-email?token=${token}`;
+
+      await sendEmail(
+        email,
+        "Verify Your Email",
+        `<p>Welcome, ${firstname}! Click below to verify:</p>
+         <a href="${verifyUrl}">Verify Email</a>`
+      );
+
+      res.redirect("/payment");
+    });
+
   } catch (err) {
     console.error("Signup error:", err);
     res.status(500).send("Server error");
   }
 });
+
+
 
 app.post("/changesubscription", ensureAuthenticated, loadUserData, async (req, res) => {
   try {
@@ -444,6 +506,8 @@ app.post("/changesubscription", ensureAuthenticated, loadUserData, async (req, r
      if (newPreferences) {
       await updateRecipientPreferences(email, newPreferences);
     }
+
+    await generateFakeHistory(email, sub_type, freq_type);
 
     const validSubs = ["option1", "option2", "option3"];
     const validFreqs = ["option1", "option2", "option3", "option4"];
@@ -540,42 +604,34 @@ app.post("/changepassword", ensureAuthenticated, async (req, res) => {
 
 passport.use(
   "local",
-  new Strategy({ usernameField: 'email' }, async function verify(email, password, cb) {
+  new Strategy({ usernameField: "email" }, async (email, password, cb) => {
     try {
       const result = await db.query(
-  `SELECT * FROM logins 
-   WHERE email = $1 
-   AND deleted_at IS NULL`,
-  [email]
-);
+        `SELECT * FROM logins 
+         WHERE email = $1 
+         AND deleted_at IS NULL`,
+        [email]
+      );
 
-      if (result.rows.length > 0) {
-
-        const user = result.rows[0];
-        const storedHashedPassword = user.password;
-
-        bcrypt.compare(password, storedHashedPassword, (err, valid) => {
-          if (err) {
-
-            console.error("Error comparing passwords:", err);
-            return cb(err);
-          } else {
-            if (valid) {
-              return cb(null, user);
-            } else {
-              return cb(null, false);
-            }
-
-          }
-        });
-      } else {
-        return cb(null, false, { message: "User not found" });
+      if (result.rows.length === 0) {
+        return cb(null, false, { message: "Invalid credentials" });
       }
+
+      const user = result.rows[0];
+      const valid = await bcrypt.compare(password, user.password);
+
+      if (!valid) {
+        return cb(null, false, { message: "Invalid credentials" });
+      }
+
+      return cb(null, user);
+
     } catch (err) {
-      console.log(err);
+      console.error("Passport login error:", err);
       return cb(err);
     }
-  }));
+  })
+);
 
 passport.use(
   "google",
@@ -594,8 +650,8 @@ passport.use(
         ]);
         if (result.rows.length === 0) {
           const newUser = await db.query(
-            "INSERT INTO logins (email, password, deleted_at) VALUES ($1, $2, NULL)",
-            [profile.email, "google"]
+            "INSERT INTO logins (email, password) VALUES ($1, $2) RETURNING *",
+            [profile.email, null]
           );
           return cb(null, newUser.rows[0]);
         } else {
