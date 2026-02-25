@@ -10,11 +10,22 @@ export default async function loadUserData(req, res, next) {
 
     const email = req.user.email;
 
-    // Fresh login info
-    const userResult = await db.query(
-      "SELECT firstname, lastname, email, username FROM logins WHERE email = $1",
+    // Fresh login info soft-deleted users should not be able to access their account page
+ const userResult = await db.query(
+      `SELECT firstname, lastname, email, username 
+       FROM logins 
+       WHERE email = $1 AND deleted_at IS NULL`,
       [email]
     );
+
+    
+// If user is soft-deleted, force logout
+if (userResult.rows.length === 0) {
+      req.logout(() => {});
+      req.session.destroy(() => {});
+      return res.redirect("/login");
+    }
+
 
     // Fresh subscription + address info
     const addressResult = await db.query(

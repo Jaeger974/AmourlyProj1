@@ -15,7 +15,7 @@ import flash from "connect-flash";
 import loadUserData from "./middlewaredbrequests.js";
 import { ensureAuthenticated } from "./auth.js";
 
-import { addNewUserData, updateRecipientPreferences,changeUserPassword, deleteUserByEmail, 
+import { addNewUserData, saveFeedback, updateRecipientPreferences,changeUserPassword, softDeleteUserByEmail, 
   updateSubscription, updateUserAddress, updateSubscriptionWithAddress, 
   updateRecipientDetails, updateUserProfile, insertTransaction, getUserTransactions } from "./dbqueries.js";
 
@@ -289,7 +289,7 @@ app.post("/yourdashboard", ensureAuthenticated, async (req, res) => {
 
 app.post("/delete-account", ensureAuthenticated, async (req, res) => {
   try {
-    await deleteUserByEmail(req.user.email);
+    await softDeleteUserByEmail(req.user.email);
 
     req.logout(err => {
       if (err) {
@@ -299,7 +299,7 @@ app.post("/delete-account", ensureAuthenticated, async (req, res) => {
 
       req.flash("alert", {
         type: "info",
-        text: "Your account has been deleted and you have been logged out."
+        text: "Your account has been marked as deleted and you have been logged out."
       });
 
       req.session.destroy(err => {
@@ -309,7 +309,7 @@ app.post("/delete-account", ensureAuthenticated, async (req, res) => {
         }
 
         res.clearCookie("connect.sid");
-        console.log("User logged out and session destroyed after account deletion");
+        console.log("User logged out and session destroyed after soft delete");
         return res.redirect("/deletefeedback");
       });
     });
@@ -317,6 +317,25 @@ app.post("/delete-account", ensureAuthenticated, async (req, res) => {
   } catch (err) {
     console.error("Account deletion error:", err);
     return res.status(500).send("Server error during account deletion");
+  }
+});
+
+app.post("/delete-feedback", async (req, res) => {
+  try {
+    const { reason, satisfaction, return_likelihood, comments } = req.body;
+
+    // Save to DB or CSV here
+    await saveFeedback(reason, satisfaction, return_likelihood, comments);
+
+    req.flash("alert", {
+      type: "success",
+      text: "Thank you for your feedback!"
+    });
+
+    res.redirect("/");
+  } catch (err) {
+    console.error("Feedback error:", err);
+    res.status(500).send("Server error");
   }
 });
 
@@ -523,9 +542,13 @@ passport.use(
   "local",
   new Strategy({ usernameField: 'email' }, async function verify(email, password, cb) {
     try {
-      const result = await db.query("SELECT * FROM logins WHERE email = $1", [
-        email,
-      ]);
+      const result = await db.query(
+  `SELECT * FROM logins 
+   WHERE email = $1 
+   AND deleted_at IS NULL`,
+  [email]
+);
+
       if (result.rows.length > 0) {
 
         const user = result.rows[0];
@@ -566,12 +589,12 @@ passport.use(
     async (accessToken, refreshToken, profile, cb) => {
       try {
         console.log(profile);
-        const result = await db.query("SELECT * FROM logins WHERE email = $1", [
+        const result = await db.query("SELECT * FROM logins WHERE email = $1 AND deleted_at IS NULL", [
           profile.email,
         ]);
         if (result.rows.length === 0) {
           const newUser = await db.query(
-            "INSERT INTO logins (email, password) VALUES ($1, $2)",
+            "INSERT INTO logins (email, password, deleted_at) VALUES ($1, $2, NULL)",
             [profile.email, "google"]
           );
           return cb(null, newUser.rows[0]);
@@ -592,7 +615,7 @@ cb(null, user.id); // store only ID
 
 passport.deserializeUser(async (id, cb) => {
   try {
-    const result = await db.query("SELECT * FROM logins WHERE id = $1", [id]);
+    const result = await db.query("SELECT * FROM logins WHERE id = $1 AND deleted_at IS NULL", [id]);
     cb(null, result.rows[0]);
   } catch (err) {
     cb(err);
