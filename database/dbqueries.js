@@ -212,14 +212,3 @@ export async function verifyUserEmail(email) {
     [email]
   );
 }
-
-export async function getRecipientEmailByAccountEmail(email) {
-  const result = await db.query(
-    `SELECT recipient_email 
-     FROM addresses 
-     WHERE account_email = $1 
-       AND deleted_at IS NULL`,
-    [email]
-  );
-  return result.rows[0]?.recipient_email || null;
-}

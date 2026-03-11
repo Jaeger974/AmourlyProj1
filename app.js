@@ -10,18 +10,18 @@ import passport from "passport";
 import GoogleStrategy from "passport-google-oauth2";
 import { Strategy } from "passport-local";
 import express from "express";
-
 import flash from "connect-flash";
+
 import loadUserData from "./middlewares/middlewaredbrequests.js";
-import { ensureAuthenticated } from "./routes/auth.js";
-import { getRecipientEmailByAccountEmail, addNewUserData, saveFeedback,
+import { ensureAuthenticated } from "./routes/authRoutes.js";
+import { addNewUserData, saveFeedback,
   updateRecipientPreferences, changeUserPassword, softDeleteUserByEmail, 
   updateSubscription, updateUserAddress, updateSubscriptionWithAddress, 
-  updateRecipientDetails, updateUserProfile, insertTransaction, getUserTransactions,
-  saveVerificationToken, getEmailByToken, deleteToken, verifyUserEmail
+  updateRecipientDetails, updateUserProfile, getUserTransactions,
+  saveVerificationToken
 } from "./database/dbqueries.js";
-import { sendEmail } from "../services/emailExampleService.js";
-import { generateToken } from "../services/tokenService.js";
+import { sendEmail } from "./services/emailExampleService.js";
+import { generateToken } from "./services/tokenService.js";
 import { generateFakeHistory } from "./routes/fakeHistory.js";
 import db from "./database/db.js";
 
@@ -32,6 +32,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 const saltRounds = 10;
+
+
 
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -251,30 +253,7 @@ app.get("/deletefeedback", ensureAuthenticated, (req, res) => {
   res.render("/deletefeedback");
 });
 
-router.get("/verify-email", async (req, res) => {
-  try {
-    const { token } = req.query;
 
-    const email = await getEmailByToken(token);
-    if (!email) {
-      return res.status(400).send("Invalid or expired token");
-    }
-
-    await verifyUserEmail(email);
-    await deleteToken(token);
-
-    req.flash("alert", {
-      type: "success",
-      text: "Your email has been verified!"
-    });
-
-    res.redirect("/account");
-
-  } catch (err) {
-    console.error("Verification error:", err);
-    res.status(500).send("Server error");
-  }
-});
 
 app.post('/save-date', (req, res) => {
   const { date } = req.body;
@@ -285,30 +264,7 @@ app.post('/save-date', (req, res) => {
 
 
 
-router.post("/send-recipient-email", ensureAuthenticated, async (req, res) => {
-  try {
-    const userEmail = req.user.email;
-    const recipientEmail = await getRecipientEmailByAccountEmail(userEmail);
 
-    if (!recipientEmail) {
-      req.flash("alert", { type: "danger", text: "No recipient email found." });
-      return res.redirect("/account");
-    }
-
-    await sendEmail(
-      recipientEmail,
-      "You've Been Gifted a Poetry Subscription",
-      `<p>You’ve been gifted a poetry subscription!</p>`
-    );
-
-    req.flash("alert", { type: "success", text: "Recipient email sent!" });
-    res.redirect("/account");
-
-  } catch (err) {
-    console.error("Recipient email error:", err);
-    res.status(500).send("Server error");
-  }
-});
 
 
 
@@ -452,7 +408,8 @@ app.post("/changedetails/update-details", ensureAuthenticated, async (req, res) 
   }
 });
 
-router.post("/newsignup", async (req, res) => {
+
+app.post("/newsignup", async (req, res) => {
   try {
     const { email, firstname, lastname, username, password, finalPrice } = req.body;
 
