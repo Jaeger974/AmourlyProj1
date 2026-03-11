@@ -8,161 +8,151 @@
 </head>
 <body>
 
-<%- include("partials/PS_header.ejs") %>
-
-    <header class="signup-header">
-  <h1>Join Our Poetry Subscription Service</h1>
-</header>
 <div class="mainbody">
 <div class="signup-container">
   <h2>Create Account</h2>
-  <form action="/newsignup" method="POST">
+
+<% layout("partials/auth_layout", {
+    title: "Register New Account",
+    heading: "Join Our Poetry Subscription Service"
+}) %>
+
+<form action="/newsignup" method="POST" class="auth-form">
 
     <!-- First Name -->
-    <div class="form-group">
-      <input type="text" id="firstName" name="firstName" placeholder=" " required>
-      <label for="firstName">First Name</label>
+    <div class="floating-group">
+        <input type="text" id="firstName" name="firstName" placeholder=" " required>
+        <label for="firstName">First Name</label>
     </div>
 
     <!-- Last Name -->
-    <div class="form-group">
-      <input type="text" id="lastName" name="lastName" placeholder=" " required>
-      <label for="lastName">Last Name</label>
+    <div class="floating-group">
+        <input type="text" id="lastName" name="lastName" placeholder=" " required>
+        <label for="lastName">Last Name</label>
     </div>
 
     <!-- Username -->
-    <div class="form-group">
-      <input type="text" id="username" name="username" placeholder=" " required>
-      <label for="username">Username</label>
+    <div class="floating-group">
+        <input type="text" id="username" name="username" placeholder=" " required>
+        <label for="username">Username</label>
     </div>
 
     <!-- Email -->
-    <div class="form-group">
-      <input type="email" id="email" name="email" placeholder=" " required>
-      <label for="email">Email Address</label>
-      <% if (typeof message !== "undefined" && message) { %>
+    <div class="floating-group">
+        <input type="email" id="email" name="email" placeholder=" " required>
+        <label for="email">Email Address</label>
 
-    <small class="error-message"><%= message %></small>
-  <% } %>
+        <% if (typeof message !== "undefined" && message) { %>
+            <small class="error-message"><%= message %></small>
+        <% } %>
     </div>
 
     <!-- Password -->
-    <div class="form-group">
-      <input type="password" id="password" name="password" placeholder=" " required>
-      <label for="password">Password</label>
+    <div class="floating-group">
+        <input type="password" id="password" name="password" placeholder=" " required>
+        <label for="password">Password</label>
     </div>
 
     <!-- Confirm Password -->
-    <div class="form-group">
-      <input type="password" id="confirmPassword" name="confirmPassword" placeholder=" " required>
-      <label for="confirmPassword">Confirm Password</label>
+    <div class="floating-group">
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder=" " required>
+        <label for="confirmPassword">Confirm Password</label>
         <small id="passwordMessage"></small>
-
     </div>
 
     <!-- Address -->
     <h3>Your Address</h3>
-    <div class="form-group">
-      <input type="text" id="addressLine1" name="addressLine1" placeholder=" " required>
-      <label for="addressLine1">Address Line 1</label>
+
+    <div class="floating-group">
+        <input type="text" id="addressLine1" name="addressLine1" placeholder=" " required>
+        <label for="addressLine1">Address Line 1</label>
     </div>
 
-    <div class="form-group">
-      <input type="text" id="addressLine2" name="addressLine2" placeholder=" ">
-      <label for="addressLine2">Address Line 2</label>
+    <div class="floating-group">
+        <input type="text" id="addressLine2" name="addressLine2" placeholder=" ">
+        <label for="addressLine2">Address Line 2</label>
     </div>
 
-    <div class="form-group">
-      <input type="text" id="city" name="city" placeholder=" " required>
-      <label for="city">Town/City</label>
+    <div class="floating-group">
+        <input type="text" id="city" name="city" placeholder=" " required>
+        <label for="city">Town/City</label>
     </div>
 
-    <div class="form-group">
-      <input type="text" id="postcode" name="postcode" placeholder=" " required>
-      <label for="postcode">Postcode / Zip Code</label>
+    <div class="floating-group">
+        <input type="text" id="postcode" name="postcode" placeholder=" " required>
+        <label for="postcode">Postcode / Zip Code</label>
     </div>
 
-    <div class="form-group">
-      <input type="text" id="country" name="country" placeholder=" " required>
-      <label for="country">Country</label>
+    <div class="floating-group">
+        <input type="text" id="country" name="country" placeholder=" " required>
+        <label for="country">Country</label>
     </div>
 
-
-
-
-        <!-- Radio Input -->
+    <!-- Subscription -->
     <h4>Choose a Subscription level:</h4>
     <div class="radio-group">
-      <label class="packageradio"><input type="radio" name="choice" value="option1"  <%= choice === 'option1' ? 'checked' : '' %> checked required> School-ground Crush</label>
-      <label class="packageradio"><input type="radio" name="choice" value="option2"       <%= choice === 'option2' ? 'checked' : '' %>> New Love affair</label>
-      <label class="packageradio"><input type="radio" name="choice" value="option3" id="option3"       <%= choice === 'option3' ? 'checked' : '' %>> Passionate Outpour</label>
+        <div class="packageradio"><label><input type="radio" id="option1" name="sub_type" value="option1" <%= sub_type === 'option1' ? 'checked' : '' %> required> School-ground Crush</label></div>
+        <div class="packageradio"><label><input type="radio" id="option2" name="sub_type" value="option2" <%= sub_type === 'option2' ? 'checked' : '' %> required> New Love Affair</label></div>
+        <div class="packageradio"><label><input type="radio" id="option3" name="sub_type" value="option3"  <%= sub_type === 'option3' ? 'checked' : '' %> required> Passionate Outpour</label></div>
     </div>
 
     <!-- Frequency -->
     <h4>Select frequency of Delivery:</h4>
     <div class="radio-group2">
-      <label><input type="radio" name="freqchoice" value="option1"  required> Every 2 weeks</label>
-      <label><input type="radio" name="freqchoice" value="option2" checked> Every Month</label>
-      <label><input type="radio" name="freqchoice" value="option3"> Every 2 Months</label>
-      <label><input type="radio" name="freqchoice" value="option4"> Every 6 Months</label>
+        <label><input type="radio" name="freq_type" value="option1" required> Every 2 weeks</label>
+        <label><input type="radio" name="freq_type" value="option2" checked> Every Month</label>
+        <label><input type="radio" name="freq_type" value="option3"> Every 2 Months</label>
+        <label><input type="radio" name="freq_type" value="option4"> Every 6 Months</label>
     </div>
 
     <!-- Recipient Email -->
+    <h3>Recipient Details</h3>
 
-    
-        <h3>Recipient Details</h3> 
-        
-        <div class="form-group">
-      <input type="email" id="recipientEmail" name="recipientEmail" placeholder=" ">
-      <label for="recipientEmail">Recipient Email</label>
+    <div class="floating-group">
+        <input type="email" id="recipientEmail" name="recipientEmail" placeholder=" ">
+        <label for="recipientEmail">Recipient Email</label>
     </div>
 
+    <!-- Recipient Address -->
+    <div id="recipientAddressContainer" class="hidden">
 
-    <!-- Recipient Address (hidden by default) -->
-    <div id="recipientAddressContainer" class="hidden">    
-      
-     
+        <div class="floating-group">
+            <input type="text" id="recipientAddressLine1" name="recipientAddressLine1" placeholder=" ">
+            <label for="recipientAddressLine1">Recipient Address Line 1</label>
+        </div>
 
-      <div class="form-group">
-        <input type="text" id="recipientAddressLine1" name="recipientAddressLine1" placeholder=" " required>
-        <label for="recipientAddressLine1">Recipient Address Line 1</label>
-      </div>
+        <div class="floating-group">
+            <input type="text" id="recipientAddressLine2" name="recipientAddressLine2" placeholder=" ">
+            <label for="recipientAddressLine2">Recipient Address Line 2</label>
+        </div>
 
-      <div class="form-group">
-        <input type="text" id="recipientAddressLine2" name="recipientAddressLine2" placeholder=" ">
-        <label for="recipientAddressLine2">Recipient Address Line 2</label>
-      </div>
+        <div class="floating-group">
+            <input type="text" id="recipientCity" name="recipientCity" placeholder=" ">
+            <label for="recipientCity">Recipient Town/City</label>
+        </div>
 
-      <div class="form-group">
-        <input type="text" id="recipientCity" name="recipientCity" placeholder=" " required>
-        <label for="recipientCity">Recipient Town/City</label>
-      </div>
+        <div class="floating-group">
+            <input type="text" id="recipientPostcode" name="recipientPostcode" placeholder=" ">
+            <label for="recipientPostcode">Recipient Postcode / Zip Code</label>
+        </div>
 
-      <div class="form-group">
-        <input type="text" id="recipientPostcode" name="recipientPostcode" placeholder=" " required>
-        <label for="recipientPostcode">Recipient Postcode / Zip Code</label>
-      </div>
-
-      <div class="form-group">
-        <input type="text" id="recipientCountry" name="recipientCountry" placeholder=" " required>
-        <label for="recipientCountry">Recipient Country</label>
-      </div>
+        <div class="floating-group">
+            <input type="text" id="recipientCountry" name="recipientCountry" placeholder=" ">
+            <label for="recipientCountry">Recipient Country</label>
+        </div>
     </div>
 
-    
-
-    <!-- Price Display -->
+    <!-- Price -->
     <div id="priceDisplay" class="price-box">
-      Total Romantic Investment: <span id="priceValue"></span>
+        Total Romantic Investment: <span id="priceValue"></span>
     </div>
 
-    <!-- Submit -->
-     <input type="hidden" name="finalPrice" id="finalPriceInput">
-    <button type="submit" id="submitBtn">Continue to payment</button>
-    
+    <input type="hidden" name="finalPrice" id="finalPriceInput">
 
-   
-  </form>
+    <button type="submit" class="auth-button">Continue to payment</button>
+
+</form>
+
 </div>
 </div>
 
@@ -174,109 +164,130 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" src="/Clientside_JS/PoetrySub.js" type="module"></script>
 
- <script>
- document.addEventListener("DOMContentLoaded", () => {
-      const option3Radio = document.getElementById("option3");
-      const recipientContainer = document.getElementById("recipientAddressContainer");
-      const radios = document.querySelectorAll("input[name='choice']");
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const option3Radio = document.getElementById("option3");
+    const recipientContainer = document.getElementById("recipientAddressContainer");
 
-      radios.forEach(radio => {
-        radio.addEventListener("change", () => {
-          if (option3Radio.checked) {
-              recipientAddressLine1.required = true;
-              recipientCity.required = true;
-              recipientPostcode.required = true;
-              recipientCountry.required = true;
-                recipientContainer.classList.remove("hidden");
-          } else {
-              recipientAddressLine1.required = false;
-              recipientCity.required = false;
-              recipientPostcode.required = false;
-              recipientCountry.required = false;
-                recipientContainer.classList.add("hidden");
-          }
-        });
-      });
+    const recipientAddressLine1 = document.getElementById("recipientAddressLine1");
+    const recipientCity = document.getElementById("recipientCity");
+    const recipientPostcode = document.getElementById("recipientPostcode");
+    const recipientCountry = document.getElementById("recipientCountry");
+
+    const radios = document.querySelectorAll("input[name='sub_type']");
+
+    function toggleRecipientFields() {
+        const isOption3 = option3Radio.checked;
+
+        // Required fields only when Option 3 is selected
+        recipientAddressLine1.required = isOption3;
+        recipientCity.required = isOption3;
+        recipientPostcode.required = isOption3;
+        recipientCountry.required = isOption3;
+
+        // Show/hide container
+        recipientContainer.classList.toggle("hidden", !isOption3);
+    }
+
+    // Listen for changes
+    radios.forEach(radio => radio.addEventListener("change", toggleRecipientFields));
+
+    // Run once on page load (important for preselected values)
+    toggleRecipientFields();
 });
-  </script>
+</script>
 
-  <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const radios = document.querySelectorAll("input[name='choice']");
-    const freqRadios = document.querySelectorAll("input[name='freqchoice']");
+ <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const planRadios = document.querySelectorAll("input[name='sub_type']");
+    const freqRadios = document.querySelectorAll("input[name=']");
     const priceValue = document.getElementById("priceValue");
+    const finalPriceInput = document.getElementById("finalPriceInput");
 
     const prices = {
-      option1: 3.99,
-      option2: 9.99,
-      option3: 24.99
+        option1: 3.99,
+        option2: 9.99,
+        option3: 24.99
     };
 
     const frequencyFactors = {
-      option1: 2.4,    // Every 2 weeks
-      option2: 1,      // Every month
-      option3: 0.7,   // Every 2 months
-      option4: 0.4  // Every 6 months
+        option1: 2.4,   // Every 2 weeks
+        option2: 1,     // Monthly
+        option3: 0.7,   // Every 2 months
+        option4: 0.4    // Every 6 months
     };
 
     function updatePrice() {
-      const selectedPlan = document.querySelector("input[name='choice']:checked").value;
-      const selectedFreq = document.querySelector("input[name='freqchoice']:checked")?.value || "option2"; 
+        const selectedPlan = document.querySelector("input[name='sub_type']:checked");
+        if (!selectedPlan) return; // nothing selected yet
 
-      const basePrice = prices[selectedPlan];
-      const multiplier = frequencyFactors[selectedFreq];
-      const finalPrice = (basePrice * multiplier).toFixed(2);
+        const selectedFreq = document.querySelector("input[name='']:checked")?.value || "option2";
 
-      priceValue.textContent = "£" + finalPrice + " per Month";
-    
-    document.getElementById("finalPriceInput").value = finalPrice;
+        const basePrice = prices[selectedPlan.value];
+        const multiplier = frequencyFactors[selectedFreq];
+        const finalPrice = (basePrice * multiplier).toFixed(2);
+
+        priceValue.textContent = "£" + finalPrice + " per Month";
+        finalPriceInput.value = finalPrice;
     }
-    
-    radios.forEach(radio => radio.addEventListener("change", updatePrice));
-    freqRadios.forEach(radio => radio.addEventListener("change", updatePrice));
 
-    updatePrice();
-  });
+    planRadios.forEach(r => r.addEventListener("change", updatePrice));
+    freqRadios.forEach(r => r.addEventListener("change", updatePrice));
+
+    updatePrice(); // run once on load
+});
 </script>
 
 <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const password = document.getElementById("password");
+    const confirmPassword = document.getElementById("confirmPassword");
+    const submitBtn = document.getElementById("submitBtn");
+    const message = document.getElementById("passwordMessage");
 
+    function validatePasswords() {
+        if (!password.value || !confirmPassword.value) {
+            confirmPassword.setCustomValidity("Please confirm your password");
+            message.textContent = "";
+            submitBtn.disabled = true;
+            return;
+        }
 
-const password = document.getElementById("password");
-const confirmPassword = document.getElementById("confirmPassword");
-const submitBtn = document.getElementById("submitBtn");
-const message = document.getElementById("passwordMessage");
-
-function validatePasswords() {
-  if (password.value && confirmPassword.value) {
-    if (password.value !== confirmPassword.value) {
-      // ❌ mismatch
-      confirmPassword.setCustomValidity("Passwords do not match");
-      message.textContent = "Passwords do not match ❌";
-      message.style.color = "red";
-      submitBtn.disabled = true;
-    } else {
-      // ✅ match
-      confirmPassword.setCustomValidity("");
-      message.textContent = "Passwords match ✅";
-      message.style.color = "green";
-      submitBtn.disabled = false;
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity("Passwords do not match");
+            message.textContent = "Passwords do not match ❌";
+            message.style.color = "red";
+            submitBtn.disabled = true;
+        } else {
+            confirmPassword.setCustomValidity("");
+            message.textContent = "Passwords match ✅";
+            message.style.color = "green";
+            submitBtn.disabled = false;
+        }
     }
-  } else {
-    // empty fields
-    confirmPassword.setCustomValidity("Please confirm your password");
-    message.textContent = "";
-    submitBtn.disabled = true;
-  }
-}
 
-// Run validation whenever user types
-password.addEventListener("input", validatePasswords);
-confirmPassword.addEventListener("input", validatePasswords);
-
+    password.addEventListener("input", validatePasswords);
+    confirmPassword.addEventListener("input", validatePasswords);
+});
 </script>
 
-<%- include("partials/PS_footer.ejs") %>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const radios = document.querySelectorAll('.packageradio input[type="radio"]');
+
+    radios.forEach(radio => {
+        radio.addEventListener("change", function () {
+            document.querySelectorAll('.packageradio label')
+                .forEach(label => label.classList.remove("checked"));
+
+            if (this.checked) {
+                this.closest("label").classList.add("checked");
+            }
+        });
+    });
+});
+</script>
+
 
 </body>
 </html>

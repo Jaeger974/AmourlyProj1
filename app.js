@@ -1,38 +1,43 @@
-import express from "express";
-import path from 'path';
+import dotenv from "dotenv";
+dotenv.config();
+
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import path from 'path';
 import bodyParser from "body-parser";
-import pg from "pg";
 import bcrypt from "bcrypt";
 import session from "express-session";
 import passport from "passport";
 import GoogleStrategy from "passport-google-oauth2";
 import { Strategy } from "passport-local";
-import env from "dotenv";
+import express from "express";
+import flash from "connect-flash";
+
+import loadUserData from "./middlewares/middlewaredbrequests.js";
+import { ensureAuthenticated } from "./routes/authRoutes.js";
+import { addNewUserData, saveFeedback,
+  updateRecipientPreferences, changeUserPassword, softDeleteUserByEmail, 
+  updateSubscription, updateUserAddress, updateSubscriptionWithAddress, 
+  updateRecipientDetails, updateUserProfile, getUserTransactions,
+  saveVerificationToken
+} from "./database/dbqueries.js";
+import { sendEmail } from "./services/emailExampleService.js";
+import { generateToken } from "./services/tokenService.js";
+import { generateFakeHistory } from "./routes/fakeHistory.js";
+import db from "./database/db.js";
+
+import engine from "ejs-mate";
 
 const PORT = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 const app = express();
 const saltRounds = 10;
 
 
-env.config();
-
-const db = new pg.Client({
-  user: process.env.PG_USER,
-  host: process.env.PG_HOST,
-  database: process.env.PG_DATABASE,
-  password: process.env.PG_PASSWORD,
-  port: process.env.PG_PORT,
-});
-db.connect();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public/static_files')));
-
 
 app.use(
   session({
@@ -48,13 +53,17 @@ app.use(
 })
 );
 
-app.use(express.static('public'));
-app.use(express.json());
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.engine("ejs", engine);          // activate ejs-mate
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
+app.use(express.static("public"));
+app.use(express.json());
+
+app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
+
 
 
 app.get("/", (req, res) => {
@@ -62,18 +71,17 @@ app.get("/", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  const message = req.query.msg === "emailExists"
-    ? "This email is already registered. Please log in."
-    : null;
-
-  const logoutMessage = req.query.loggedout === "true"
-    ? "You are successfully logged out."
-    : null;
-
-  res.render("PS_login", { message, logoutMessage });
+  res.render("PS_login", { 
+    message: null,
+    flash: req.flash("alert")[0] || null
+  });
 });
+<<<<<<< HEAD
 
 
+=======
+   
+>>>>>>> compile-db-requests
 app.get("/HowitWorks", (req, res) => {
 
   const faqs = [
@@ -90,22 +98,15 @@ app.get("/HowitWorks", (req, res) => {
   res.render("PS_HowitWorks", { faqs });
 });
 
-app.get("/payment", (req, res) => {
-  if (!req.session.signupData) {
-    return res.redirect("/newsignup"); // fallback if no data
-  }
-  console.log("Signup Data in Session:", req.session.signupData);
-  res.render("PS_payment", { signupData: req.session.signupData });
-});
+app.get("/payment", loadUserData, (req, res) => {
 
+  const flashMessage = req.flash("alert")[0] || null;
 
-
-function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  res.redirect("/login");
+  try{
+    if (!req.isAuthenticated()) {
+  return res.redirect("/login");
 }
+<<<<<<< HEAD
 
 app.get("/yourdashboard", ensureAuthenticated, async (req, res) => {
   try {
@@ -131,48 +132,110 @@ app.get("/yourdashboard", ensureAuthenticated, async (req, res) => {
     console.error("Account page error:", err);
     res.status(500).send("Server error");
   }
+=======
+  console.log("Signup Data in Session:");
+  res.render("PS_payment", {
+    user: res.locals.user,
+    subscription: res.locals.subscription,
+    flash: flashMessage,
+  });
+}catch(err)
+{
+      console.error("Error in /payment route:", err);
+      return res.status(500).send("Server error");
+    }
+
+>>>>>>> compile-db-requests
 });
 
 
-app.get("/accountchanges", (req, res) => {
-    res.render("PS_account-options");
+
+app.get("/yourdashboard", ensureAuthenticated, loadUserData, async (req, res) => {
+  const flashMessage = req.flash("alert")[0] || null;
+  const email = req.user.email;
+  const { rows: transactions } = await getUserTransactions(email);
+
+
+  res.render("PS_account", {
+      user: res.locals.user,
+      subscription: res.locals.subscription,
+      user: req.user,
+      transactions, 
+      flash: flashMessage,
+    });
+      if (!res.locals.subscription) {
+    return res.redirect("/changesubscription");
+}
+  }
+);
+
+
+
+app.get("/changedetails", ensureAuthenticated, loadUserData, (req, res) => {
+  const flashMessage = req.flash("alert")[0] || null;
+
+  res.render("changedetails", {
+    flash: flashMessage,
+    user: res.locals.user,
+    subscription: res.locals.subscription
+  });
 });
 
 app.get("/changepassword", (req, res) => {
-    res.render("PS_changepassword");
+  const flashMessage = req.flash("alert")[0] || null;
+
+    res.render("PS_changepassword", {
+  flash: flashMessage,
+});
+
 });
 
 app.get("/forgotpassword", (req, res) => {
-    res.render("PS_forgotpassword");
+  const flashMessage = req.flash("alert")[0] || null;
+
+    res.render("PS_forgotpassword", {
+  flash: flashMessage,
+});
 });
 
-app.get("/changesubscription", ensureAuthenticated, async (req, res) => {
+app.get("/changesubscription", ensureAuthenticated, loadUserData, async (req, res) => {
+  const flashMessage = req.flash("alert")[0] || null;
+  
   try {
-    const email = req.user.email;
 
-    const result = await db.query(
-      "SELECT sub_type, freq_type FROM addresses WHERE account_email = $1",
-      [email]
-    );
-
-    const subscription = result.rows[0];
-
+    const subscription = res.locals.subscription;
+    
     res.render("changesubscription", {
       currentSub: subscription.sub_type,
       currentFreq: subscription.freq_type,
+<<<<<<< HEAD
       signupData2: result2.rows[0]
+=======
+      flash: flashMessage
+>>>>>>> compile-db-requests
     });
 
   } catch (err) {
     console.error("Error loading subscription:", err);
-    res.status(500).send("Server error");
+    res.status(500).send("Server error with subscription data");
   }
 });
 
 app.get("/newsignup", (req, res) => {
-  const choice = req.query.choice || "option1";
-    res.render("PS_newsignupform", { choice });
+  const { sub_type, freq_type } = req.query;
+
+  res.render("PS_newsignupform", {
+    title: "Register New Account",
+    heading: "Join Our Poetry Subscription Service",
+    flash: req.flash("alert")[0] || null,
+
+    // If user came from howitworks.ejs, these will be strings like "option3"
+    // If not, they will be undefined → we convert to null
+    sub_type: sub_type || null,
+    freq_type: freq_type || null
+  });
 });
+
 
 //API route test for render.com free hosting
 app.get("/api/hello", (req, res) => {
@@ -195,20 +258,36 @@ app.get(
   })
 );
 
-
 app.get("/logout", (req, res, next) => {
   req.logout(function(err) {
-    if (err) { return next(err); }
+    if (err) return next(err);
+
+    // Flash BEFORE destroying session
+    req.flash("alert", {
+      type: "info",
+      text: "You have been logged out."
+    });
 
     req.session.destroy((err) => {
       if (err) {
         console.error("Error destroying session:", err);
       }
+
       res.clearCookie("connect.sid");
-      // Redirect with a flag
-      res.redirect("/login?loggedout=true");
+      return res.redirect("/login");
     });
   });
+});
+
+
+app.get("/deletefeedback", ensureAuthenticated, (req, res) => {
+
+   req.flash("success", {
+      type: "info",
+      text: "You account has been successfully deleted."
+    });
+
+  res.render("/deletefeedback");
 });
 
 
@@ -222,6 +301,10 @@ app.post('/save-date', (req, res) => {
 
 
 
+
+
+
+
 app.post("/login",
   passport.authenticate("local", {
     successRedirect: "/yourdashboard",
@@ -230,9 +313,10 @@ app.post("/login",
   })
 );
 
-app.post('/yourdashboard', async (req, res) => {
+app.post("/yourdashboard", ensureAuthenticated, async (req, res) => {
   console.log("Dashboard session:", req.session);
-  const {finalPrice } = req.body;
+
+  const { finalPrice } = req.body;
 
   if (finalPrice) {
     req.session.price = finalPrice;
@@ -242,17 +326,11 @@ app.post('/yourdashboard', async (req, res) => {
   try {
     const email = req.user.email;
 
-    const newRecipientEmail = req.body['recipient-email'];
-    const newRecipientAddress = req.body['recipient-address'];
+    const newRecipientEmail = req.body["recipient-email"];
+    const newRecipientAddress = req.body["recipient-address"];
 
-    // Update only the fields that were actually provided
-    await db.query(
-      `UPDATE addresses 
-       SET recipient_email = COALESCE($1, recipient_email),
-           recipient_address = COALESCE($2, recipient_address)
-       WHERE account_email = $3`,
-      [newRecipientEmail, newRecipientAddress, email]
-    );
+    // Use your new DB helper function
+    await updateRecipientDetails(email, newRecipientEmail, newRecipientAddress);
 
     res.sendStatus(200);
 
@@ -260,15 +338,170 @@ app.post('/yourdashboard', async (req, res) => {
     console.error("Dashboard update error:", err);
     res.status(500).send("Server error");
   }
+});
 
+app.post("/delete-account", ensureAuthenticated, async (req, res) => {
+  try {
+    await softDeleteUserByEmail(req.user.email);
+
+    req.logout(err => {
+      if (err) {
+        console.error("Logout error:", err);
+        return res.status(500).send("Server error during logout");
+      }
+
+      req.flash("alert", {
+        type: "info",
+        text: "Your account has been marked as deleted and you have been logged out."
+      });
+
+      req.session.destroy(err => {
+        if (err) {
+          console.error("Session destruction error:", err);
+          return res.status(500).send("Server error during session destruction");
+        }
+
+        res.clearCookie("connect.sid");
+        console.log("User logged out and session destroyed after soft delete");
+        return res.redirect("/deletefeedback");
+      });
+    });
+
+  } catch (err) {
+    console.error("Account deletion error:", err);
+    return res.status(500).send("Server error during account deletion");
+  }
+});
+
+app.post("/delete-feedback", async (req, res) => {
+  try {
+    const { reason, satisfaction, return_likelihood, comments } = req.body;
+
+    // Save to DB or CSV here
+    await saveFeedback(reason, satisfaction, return_likelihood, comments);
+
+    req.flash("alert", {
+      type: "success",
+      text: "Thank you for your feedback!"
+    });
+
+    res.redirect("/");
+  } catch (err) {
+    console.error("Feedback error:", err);
+    res.status(500).send("Server error");
+  }
+});
+
+app.post("/changedetails/update-details", ensureAuthenticated, async (req, res) => {
+  try {
+    const originalEmail = req.user.email.trim().toLowerCase();
+    const { firstName, lastName, email, address, username } = req.body;
+
+    const newEmail = email.trim().toLowerCase();
+
+    // Basic validation
+    if (!firstName || !lastName || !newEmail || !username || !address) {
+      req.flash("alert", {
+        type: "error",
+        text: "All fields are required."
+      });
+      return res.redirect("/yourdashboard");
+    }
+
+     await updateUserProfile(originalEmail, firstName, lastName, username);
+
+    if (newEmail !== originalEmail) {
+          const addrRes = await updateUserAddress(originalEmail, address, newEmail);
+          if (!addrRes || addrRes.rowCount === 0) {
+            // No address row matched originalEmail — try matching by newEmail as fallback
+            await updateUserAddress(newEmail, address);
+          }
+        } else {
+          // Email unchanged — update address normally
+          await updateUserAddress(originalEmail, address);
+        }
+
+            console.log('New account email saved:', newEmail);
+            console.log('New name saved:', firstName, lastName);
+            console.log('New address saved:', address);
+
+    // Success flash message
+    req.flash("alert", {
+      type: "success",
+      text: "Your account details have been updated successfully."
+    });
+
+    return res.redirect("/yourdashboard");
+
+  } catch (err) {
+    console.error("Account update error:", err);
+
+    req.flash("alert", {
+      type: "error",
+      text: "Something went wrong while updating your details."
+    });
+
+    return res.redirect("/yourdashboard");
+  }
+});
+
+
+app.post("/newsignup", async (req, res) => {
+  try {
+    const { email, firstname, lastname, username, password, finalPrice } = req.body;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUserResult = await addNewUserData(email, firstname, lastname, username, hashedPassword);
+    const newUser = newUserResult.rows[0];
+
+    req.login(newUser, async (err) => {
+      if (err) return res.status(500).send("Server error");
+
+      const token = generateToken();
+      await saveVerificationToken(email, token);
+
+      const verifyUrl = `http://localhost:3000/verify-email?token=${token}`;
+
+      await sendEmail(
+        email,
+        "Verify Your Email",
+        `<p>Welcome, ${firstname}! Click below to verify:</p>
+         <a href="${verifyUrl}">Verify Email</a>`
+      );
+
+      res.redirect("/payment");
+    });
+
+  } catch (err) {
+    console.error("Signup error:", err);
+    res.status(500).send("Server error");
+  }
 });
 
 
 
-app.post("/changesubscription", ensureAuthenticated, async (req, res) => {
+app.post("/changesubscription", ensureAuthenticated, loadUserData, async (req, res) => {
   try {
     const email = req.user.email;
-    const { sub_type, freq_type, address1, address2, city, postcode } = req.body;
+
+    const {
+      "recipient-email": newRecipientEmail,
+      sub_type,
+      freq_type,
+      address1,
+      address2,
+      city,
+      postcode
+    } = req.body;
+
+    const newPreferences = req.body["recipient-preferences"];
+
+     if (newPreferences) {
+      await updateRecipientPreferences(email, newPreferences);
+    }
+
+    await generateFakeHistory(email, sub_type, freq_type);
 
     const validSubs = ["option1", "option2", "option3"];
     const validFreqs = ["option1", "option2", "option3", "option4"];
@@ -276,7 +509,6 @@ app.post("/changesubscription", ensureAuthenticated, async (req, res) => {
     if (!validSubs.includes(sub_type) || !validFreqs.includes(freq_type)) {
       return res.status(400).send("Invalid subscription type or frequency");
     }
-
     const pricing = {
       option1: 3.99,
       option2: 9.99,
@@ -295,23 +527,27 @@ app.post("/changesubscription", ensureAuthenticated, async (req, res) => {
 
     let fullAddress = null;
 
-if (sub_type === "option3") {
-  fullAddress = [address1, address2, city, postcode]
-    .filter(Boolean)
-    .join(", ");
+    if (sub_type === "option3") {
+      fullAddress = [address1, address2, city, postcode]
+        .filter(Boolean)
+        .join(", ");
 
-  await db.query(
-    "UPDATE addresses SET sub_type = $1, freq_type = $2, recipient_address = $3 WHERE account_email = $4",
-    [sub_type, freq_type, fullAddress, email]
-  );
-} else {
-  await db.query(
-    "UPDATE addresses SET sub_type = $1, freq_type = $2 WHERE account_email = $3",
-    [sub_type, freq_type, email]
-  );
+      await updateSubscriptionWithAddress(email, sub_type, freq_type, fullAddress);
 
-  console.log("Full address being saved:", fullAddress);
+    } else {
+      await updateSubscription(email, sub_type, freq_type);
+    }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (newRecipientEmail && emailRegex.test(newRecipientEmail)) {
+      await updateRecipientDetails(email, newRecipientEmail, null);
 }
+
+    req.flash("alert", {
+      type: "success",
+      text: "Your subscription has been changed successfully!"
+    });
 
     res.redirect("/yourdashboard?updated=true");
 
@@ -321,6 +557,7 @@ if (sub_type === "option3") {
   }
 });
 
+<<<<<<< HEAD
 
 
 
@@ -412,49 +649,77 @@ app.post("/newsignup", async (req, res) => {
 
       return res.redirect("/payment");
     });
+=======
+app.post("/changepassword", ensureAuthenticated, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const { currentPassword, newPassword } = req.body;
+
+    const result = await db.query("SELECT password FROM logins WHERE email = $1", [email]);
+    const storedHashedPassword = result.rows[0].password;
+
+    const isMatch = await bcrypt.compare(currentPassword, storedHashedPassword);
+    if (!isMatch) {
+      req.flash("alert", {
+        type: "error",
+        text: "Current password is incorrect."
+      });
+      return res.redirect("/changepassword");
+    }
+
+    const newHashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    await changeUserPassword(email, newHashedPassword);
+
+    console.log("Password changed for user:", email);
+
+     req.flash("alert", {
+        type: "success",
+        text: "Your password has been changed successfully!"
+      });
+
+    res.redirect("/yourdashboard");
+>>>>>>> compile-db-requests
 
   } catch (err) {
-    console.error("Error in signup:", err);
-    return res.status(500).send("Server error");
+    console.error("Error changing password:", err);
+    req.flash("alert", {
+      type: "error",
+      text: "Something went wrong while changing your password."
+    });
+    res.redirect("/changepassword");
   }
 });
 
-
-
 passport.use(
   "local",
-  new Strategy({ usernameField: 'email' }, async function verify(email, password, cb) {
+  new Strategy({ usernameField: "email" }, async (email, password, cb) => {
     try {
-      const result = await db.query("SELECT * FROM logins WHERE email = $1", [
-        email,
-      ]);
-      if (result.rows.length > 0) {
+      const result = await db.query(
+        `SELECT * FROM logins 
+         WHERE email = $1 
+         AND deleted_at IS NULL`,
+        [email]
+      );
 
-        const user = result.rows[0];
-        const storedHashedPassword = user.password;
-
-        bcrypt.compare(password, storedHashedPassword, (err, valid) => {
-          if (err) {
-
-            console.error("Error comparing passwords:", err);
-            return cb(err);
-          } else {
-            if (valid) {
-              return cb(null, user);
-            } else {
-              return cb(null, false);
-            }
-
-          }
-        });
-      } else {
-        return cb(null, false, { message: "User not found" });
+      if (result.rows.length === 0) {
+        return cb(null, false, { message: "Invalid credentials" });
       }
+
+      const user = result.rows[0];
+      const valid = await bcrypt.compare(password, user.password);
+
+      if (!valid) {
+        return cb(null, false, { message: "Invalid credentials" });
+      }
+
+      return cb(null, user);
+
     } catch (err) {
-      console.log(err);
+      console.error("Passport login error:", err);
       return cb(err);
     }
-  }));
+  })
+);
 
 passport.use(
   "google",
@@ -468,13 +733,13 @@ passport.use(
     async (accessToken, refreshToken, profile, cb) => {
       try {
         console.log(profile);
-        const result = await db.query("SELECT * FROM logins WHERE email = $1", [
+        const result = await db.query("SELECT * FROM logins WHERE email = $1 AND deleted_at IS NULL", [
           profile.email,
         ]);
         if (result.rows.length === 0) {
           const newUser = await db.query(
-            "INSERT INTO logins (email, password) VALUES ($1, $2)",
-            [profile.email, "google"]
+            "INSERT INTO logins (email, password) VALUES ($1, $2) RETURNING *",
+            [profile.email, null]
           );
           return cb(null, newUser.rows[0]);
         } else {
@@ -494,7 +759,7 @@ cb(null, user.id); // store only ID
 
 passport.deserializeUser(async (id, cb) => {
   try {
-    const result = await db.query("SELECT * FROM logins WHERE id = $1", [id]);
+    const result = await db.query("SELECT * FROM logins WHERE id = $1 AND deleted_at IS NULL", [id]);
     cb(null, result.rows[0]);
   } catch (err) {
     cb(err);

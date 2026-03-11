@@ -1,8 +1,7 @@
 /* =========================================
-   GLOBAL PAGE LAYOUT
+   GLOBAL LAYOUT
 ========================================= */
 
-/* Full-height layout */
 html, body {
   height: 100%;
   margin: 0;
@@ -18,117 +17,103 @@ body {
   color: #0f1724;
 }
 
-/* Main content grows to push footer down */
-main {
+.auth-main {
   flex: 1;
-  display: block;
-}
-
-/* =========================================
-   HEADER + NAV
-========================================= */
-
-.header {
-  text-align: center;
-  padding: 20px;
-  background: #A02c3e;
-  color: white;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-.nav-bar {
-  margin-top: 12px;
   display: flex;
   justify-content: center;
-  gap: 22px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.12);
-  border: 2px solid rgba(255,255,255,0.3);
-}
-
-.nav-link {
-  color: white;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 17px;
-  transition: transform 0.25s ease, color 0.25s ease;
-}
-
-.nav-link:hover {
-  color: #fde9ea;
-  transform: translateY(-2px);
+  padding: 40px 20px;
 }
 
 /* =========================================
-   LOGIN CONTAINER
+   AUTH CARD
 ========================================= */
 
-.login-container {
+.auth-card {
+  width: 100%;
   max-width: 480px;
-  margin: 40px auto;
-  padding: 28px 32px;
   background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  padding: 32px 36px;
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.08);
   border: 1px solid rgba(0,0,0,0.05);
 }
 
-.login-container h2 {
-  margin: 0 0 18px 0;
-  font-size: 1.45rem;
+.auth-card h2 {
+  margin: 0 0 20px 0;
+  font-size: 1.6rem;
   font-weight: 700;
   color: #7f232f;
 }
 
 /* =========================================
-   FORM + INPUTS
+   SLIDE-IN ANIMATION
 ========================================= */
 
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.slide-in {
+  animation: slideIn 0.55s ease forwards;
+  opacity: 0;
+  transform: translateY(20px);
 }
 
-.input-field {
-  padding: 12px 14px;
-  border-radius: 8px;
+@keyframes slideIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================
+   FLOATING LABEL INPUTS
+========================================= */
+
+.floating-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.floating-group input {
+  width: 100%;
+  padding: 14px 12px 10px;
   border: 1px solid #d1d5db;
+  border-radius: 8px;
   font-size: 1rem;
+  background: #fff;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.input-field:focus {
+.floating-group input:focus {
   border-color: #A02c3e;
   box-shadow: 0 6px 18px rgba(160,44,62,0.12);
   outline: none;
 }
 
-/* Password toggle */
-.password-container {
-  position: relative;
-  
+.floating-group label {
+  position: absolute;
+  top: 14px;
+  left: 12px;
+  font-size: 0.95rem;
+  color: #6b7280;
+  pointer-events: none;
+  transition: all 0.2s ease;
 }
 
-#togglePassword {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
+/* Float label when typing or focused */
+.floating-group input:focus + label,
+.floating-group input:not(:placeholder-shown) + label {
+  top: -8px;
+  left: 10px;
+  background: #fff;
+  padding: 0 6px;
+  font-size: 0.75rem;
   color: #A02c3e;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 600;
 }
 
 /* =========================================
-   LOGIN BUTTON
+   BUTTON
 ========================================= */
 
-.login-button {
+.auth-button {
+  width: 100%;
   background: linear-gradient(180deg, #A02c3e, #7f232f);
   color: white;
   border: none;
@@ -141,71 +126,38 @@ main {
   box-shadow: 0 8px 20px rgba(160,44,62,0.18);
 }
 
-.login-button:hover {
+.auth-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 28px rgba(160,44,62,0.22);
 }
 
-.login-button:active {
+.auth-button:active {
   transform: translateY(0);
   opacity: 0.95;
 }
 
 /* =========================================
-   SIGNUP LINK
+   SWITCH LINK
 ========================================= */
 
-.signup-link {
+.auth-switch {
   margin-top: 18px;
   text-align: center;
   font-size: 0.9rem;
 }
 
-.signup-link a {
+.auth-switch a {
   color: #A02c3e;
   font-weight: 600;
   text-decoration: none;
 }
 
-.signup-link a:hover {
+.auth-switch a:hover {
   text-decoration: underline;
 }
 
 /* =========================================
-   OAUTH SECTION
-========================================= */
-
-.OAuth-login-options {
-  margin: 24px;
-  text-align: center;
-}
-
-.oauth-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 18px;
-  margin-top: 12px;
-}
-
-.google_logo,
-.facebook_logo,
-.twitter_logo {
-  height: 48px;
-  width: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-  cursor: pointer;
-  transition: transform 0.25s ease;
-}
-
-.google_logo:hover,
-.facebook_logo:hover,
-.twitter_logo:hover {
-  transform: scale(1.15);
-}
-
-/* =========================================
-   ALERT SYSTEM COMPATIBILITY
+   ALERT COMPATIBILITY
 ========================================= */
 
 .alert-wrapper {
@@ -247,6 +199,4 @@ main {
   color: white;
   font-size: 14px;
   width: 100%;
-  margin-top: auto;
-  box-shadow: 0 -4px 12px rgba(0,0,0,0.15);
 }
