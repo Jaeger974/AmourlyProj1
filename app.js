@@ -76,12 +76,7 @@ app.get("/login", (req, res) => {
     flash: req.flash("alert")[0] || null
   });
 });
-<<<<<<< HEAD
-
-
-=======
    
->>>>>>> compile-db-requests
 app.get("/HowitWorks", (req, res) => {
 
   const faqs = [
@@ -106,33 +101,6 @@ app.get("/payment", loadUserData, (req, res) => {
     if (!req.isAuthenticated()) {
   return res.redirect("/login");
 }
-<<<<<<< HEAD
-
-app.get("/yourdashboard", ensureAuthenticated, async (req, res) => {
-  try {
-    const email = req.user.email;
-
-    const loginResult = await db.query(
-      "SELECT * FROM logins WHERE email = $1",
-      [email]
-    );
-
-    const addressResult = await db.query(
-      "SELECT * FROM addresses WHERE account_email = $1",
-      [email]
-    );
-
-    res.render("PS_account", {
-      signupData: loginResult.rows[0],
-      signupData2: addressResult.rows[0],
-      price: req.session.price
-    });
-
-  } catch (err) {
-    console.error("Account page error:", err);
-    res.status(500).send("Server error");
-  }
-=======
   console.log("Signup Data in Session:");
   res.render("PS_payment", {
     user: res.locals.user,
@@ -145,7 +113,6 @@ app.get("/yourdashboard", ensureAuthenticated, async (req, res) => {
       return res.status(500).send("Server error");
     }
 
->>>>>>> compile-db-requests
 });
 
 
@@ -208,11 +175,7 @@ app.get("/changesubscription", ensureAuthenticated, loadUserData, async (req, re
     res.render("changesubscription", {
       currentSub: subscription.sub_type,
       currentFreq: subscription.freq_type,
-<<<<<<< HEAD
-      signupData2: result2.rows[0]
-=======
       flash: flashMessage
->>>>>>> compile-db-requests
     });
 
   } catch (err) {
@@ -557,99 +520,6 @@ app.post("/changesubscription", ensureAuthenticated, loadUserData, async (req, r
   }
 });
 
-<<<<<<< HEAD
-
-
-
-//MAKE SURE THIS WORKS AND DOESNT COLLIDE OR INTERFERE WITH OTHER POST REQUESTS INTO DATABASE
-
-
-// //THIS NEEDS FIXING - ALLOW FOR LINKING EJS FILE ITEMS TO DATABASE ITEMS    
-// app.post("/account", async (req, res) => {
-//     const item = req.body.updatedItemTitle;
-
-//   try {
-//     await db.query("UPDATE items SET title = ($1) WHERE id = $2", [item, id]);
-//     res.redirect("/account");
-//   } catch (err) {
-//     console.log(err);
-//   }
-// });
-
-
-
-app.post("/newsignup", async (req, res) => {
-  const { finalPrice } = req.body;
-
-  const {
-    email,
-    password,
-    firstName,
-    lastName,
-    username,
-    addressLine1,
-    addressLine2,
-    city,
-    postcode,
-    recipientEmail,
-    recipientAddressLine1,
-    recipientAddressLine2,
-    recipientCity,
-    recipientPostcode,
-    recipientCountry,
-    choice,
-    freqchoice
-  } = req.body;
-
-  const fullAddress = [addressLine1, addressLine2, city, postcode]
-    .filter(Boolean)
-    .join(", ");
-
-  const fullAddressRecipient = [
-    recipientAddressLine1,
-    recipientAddressLine2,
-    recipientCity,
-    recipientPostcode,
-    recipientCountry
-  ]
-    .filter(Boolean)
-    .join(", ");
-
-  try {
-    const hash = await bcrypt.hash(password, saltRounds);
-
-    const checkResult = await db.query(
-      "SELECT * FROM logins WHERE email = $1",
-      [email]
-    );
-
-    if (checkResult.rows.length > 0) {
-      return res.redirect("/login?msg=emailExists");
-    }
-
-    const result = await db.query(
-      "INSERT INTO logins (firstname, lastname, email, password, username) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [firstName, lastName, email, hash, username]
-    );
-
-    await db.query(
-      "INSERT INTO addresses (receipient_address, recipient_address, sub_type, recipient_email, account_email, freq_type) VALUES ($1, $2, $3, $4, $5, $6)",
-      [fullAddress, fullAddressRecipient, choice, recipientEmail, email, freqchoice]
-    );
-
-    const user = result.rows[0];
-
-    req.login(user, (err) => {
-      if (err) {
-        console.error("Login error:", err);
-        return res.redirect("/login");
-      }
-
-      req.session.price = finalPrice; // keep this if needed for payment
-
-      return res.redirect("/payment");
-    });
-=======
 app.post("/changepassword", ensureAuthenticated, async (req, res) => {
   try {
     const email = req.user.email;
@@ -678,7 +548,6 @@ app.post("/changepassword", ensureAuthenticated, async (req, res) => {
       });
 
     res.redirect("/yourdashboard");
->>>>>>> compile-db-requests
 
   } catch (err) {
     console.error("Error changing password:", err);
