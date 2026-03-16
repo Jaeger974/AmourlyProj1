@@ -14,7 +14,7 @@ import flash from "connect-flash";
 
 import loadUserData from "./middlewares/middlewaredbrequests.js";
 import { ensureAuthenticated } from "./routes/authRoutes.js";
-import { addNewUserData, saveFeedback,
+import { addNewUserData, saveFeedback, addAddress,
   updateRecipientPreferences, changeUserPassword, softDeleteUserByEmail, 
   updateSubscription, updateUserAddress, updateSubscriptionWithAddress, 
   updateRecipientDetails, updateUserProfile, getUserTransactions,
@@ -93,6 +93,8 @@ app.get("/HowitWorks", (req, res) => {
   res.render("PS_HowitWorks", { faqs });
 });
 
+
+
 app.get("/payment", loadUserData, (req, res) => {
 
   const flashMessage = req.flash("alert")[0] || null;
@@ -101,12 +103,14 @@ app.get("/payment", loadUserData, (req, res) => {
     if (!req.isAuthenticated()) {
   return res.redirect("/login");
 }
-  console.log("Signup Data in Session:");
   res.render("PS_payment", {
     user: res.locals.user,
     subscription: res.locals.subscription,
     flash: flashMessage,
   });
+
+  console.log("Subscription data:", res.locals.subscription);
+
 }catch(err)
 {
       console.error("Error in /payment route:", err);
@@ -263,11 +267,6 @@ app.post('/save-date', (req, res) => {
 });
 
 
-
-
-
-
-
 app.post("/login",
   passport.authenticate("local", {
     successRedirect: "/yourdashboard",
@@ -411,12 +410,18 @@ app.post("/changedetails/update-details", ensureAuthenticated, async (req, res) 
 
 app.post("/newsignup", async (req, res) => {
   try {
-    const { email, firstname, lastname, username, password, finalPrice } = req.body;
+    const { email, firstName, lastName, username, password, sub_type, freq_type, addressLine1, addressLine2, city, postcode, country,recipientAddressLine1, recipientAddressLine2, recipientCity, recipientPostcode, recipientCountry } = req.body;
+    const account_address = [addressLine1, addressLine2, city, postcode, country].filter(Boolean).join(", ");
 
+    const recipient_address = [recipientAddressLine1, recipientAddressLine2, recipientCity, recipientPostcode, recipientCountry].filter(Boolean).join(", ");
+    
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUserResult = await addNewUserData(email, firstname, lastname, username, hashedPassword);
+    const newUserResult = await addNewUserData(email, firstName, lastName, username, hashedPassword);
     const newUser = newUserResult.rows[0];
+
+    await addAddress(email, account_address, recipient_address, sub_type, freq_type);
+
 
     req.login(newUser, async (err) => {
       if (err) return res.status(500).send("Server error");
@@ -429,13 +434,12 @@ app.post("/newsignup", async (req, res) => {
       await sendEmail(
         email,
         "Verify Your Email",
-        `<p>Welcome, ${firstname}! Click below to verify:</p>
+        `<p>Welcome, ${firstName}! Click below to verify:</p>
          <a href="${verifyUrl}">Verify Email</a>`
       );
 
       res.redirect("/payment");
     });
-
   } catch (err) {
     console.error("Signup error:", err);
     res.status(500).send("Server error");

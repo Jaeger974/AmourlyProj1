@@ -18,13 +18,13 @@
 
 
 <div class="main-body">
-        <div class="back-button">
-          <a href="/newsignup" class="btn-secondary">&larr; Back to Signup</a>
-      </div>
+  <div class="back-button">
+    <a href="/newsignup" class="btn-secondary">&larr; Back to Signup</a>
+  </div>
 
-      <div class="payment-page-container">
+  <div class="payment-page-container">
         
-          <div class="confirmation-container">
+      <div class="confirmation-container">
               <h2>Confirm Details:</h2>
                 <p>Name: <%= user.firstName %> <%= user.lastName %></p>
                 <p>Email: <%= user.email %></p>
@@ -33,7 +33,7 @@
                 <p>Frequency: <%= subscription.freq_type %></p>
                 <p>Delivery Email: <%= subscription.recipientEmail %></p>
                 <p>Delivery Address: <%= subscription.recipientAddress || `N/A` %></p>
-          </div>
+      </div>
 
 
 
@@ -41,35 +41,34 @@
           <h2 class="payment-title">Payment Page</h2>
           <form action="/payment" method="POST">
 
-              <div class="form-group">
-                  <input type="text" id="name-on-card" name="name_on_card" placeholder=" " required>
-                  <label for="name-on-card" class="form-label">Name on Card</label>
-              </div>
-
-              <div class="form-group">
-                  <input type="text" id="card-number" name="card_number" maxlength="16" placeholder=" " required pattern="^\d{16}$">
-                  <label for="card-number" class="form-label">Card Number</label>
-              </div>
-
-              <div class="form-group">
-                  <input type="text" id="expiry" name="expiry" maxlength="5" placeholder=" " required pattern="^(0[1-9]|1[0-2])\/\d{2}$">
-                  <label for="expiry" class="form-label">MM/YY</label>
-                  <small id="expiryError" class="error-message"></small>
-              </div>
-
-              <div class="form-group">
-                  <input type="text" id="cvv" name="cvv" maxlength="3" placeholder=" " required pattern="^\d{3}$">
-                  <label for="cvv" class="form-label">CVV</label>
-              </div>
-
-              <a href=>
-              <button type="submit" id="loveButton" class="btn-primary" onclick="location.href='/yourdashboard'">Submit Payment</button>
-              </a>
-
-          </form>
-
+          <div class="form-group">
+            <input type="text" id="name-on-card" name="name_on_card" placeholder=" " required>
+            <label for="name-on-card" class="form-label">Name on Card</label>
           </div>
+
+          <div class="form-group">
+            <input type="text" id="card-number" name="card_number" maxlength="16" placeholder=" " required pattern="^\d{16}$">
+            <label for="card-number" class="form-label">Card Number</label>
+          </div>
+
+          <div class="form-group">
+            <input type="text" id="expiry" name="expiry" maxlength="5" placeholder=" " required pattern="^(0[1-9]|1[0-2])\/\d{2}$">
+            <label for="expiry" class="form-label">MM/YY</label>
+            <small id="expiryError" class="error-message"></small>
+          </div>
+
+          <div class="form-group">
+            <input type="text" id="cvv" name="cvv" maxlength="3" placeholder=" " required pattern="^\d{3}$">
+            <label for="cvv" class="form-label">CVV</label>
+          </div>
+
+            <a href=>
+            <button type="submit" id="loveButton" class="btn-primary" onclick="location.href='/yourdashboard'">Submit Payment</button>
+          </a>
+
+        </form>
       </div>
+  </div>
 </div>
 
 

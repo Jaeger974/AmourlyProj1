@@ -467,7 +467,7 @@ body {
 }
 
 /* Pause scroll on hover */
-.testimonials-section:hover .testimonials-body {
+.testimonials-body:hover {
     animation-play-state: paused;
 }
 

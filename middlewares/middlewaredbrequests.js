@@ -29,7 +29,7 @@ if (userResult.rows.length === 0) {
 
     // Fresh subscription + address info
     const addressResult = await db.query(
-      "SELECT * FROM addresses WHERE account_email = $1",
+      "SELECT * FROM addresses WHERE account_email = $1 AND deleted_at IS NULL",
       [email]
     );
 
