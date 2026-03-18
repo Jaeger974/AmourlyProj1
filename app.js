@@ -110,6 +110,7 @@ app.get("/payment", loadUserData, (req, res) => {
   });
 
   console.log("Subscription data:", res.locals.subscription);
+  console.log("User data:", res.locals.user);
 
 }catch(err)
 {
@@ -126,19 +127,18 @@ app.get("/yourdashboard", ensureAuthenticated, loadUserData, async (req, res) =>
   const email = req.user.email;
   const { rows: transactions } = await getUserTransactions(email);
 
+    if (!res.locals.subscription) {
+      return res.redirect("/changesubscription");
+    }
 
   res.render("PS_account", {
       user: res.locals.user,
       subscription: res.locals.subscription,
-      user: req.user,
       transactions, 
       flash: flashMessage,
     });
-      if (!res.locals.subscription) {
-    return res.redirect("/changesubscription");
-}
-  }
-);
+
+});
 
 
 
@@ -410,7 +410,7 @@ app.post("/changedetails/update-details", ensureAuthenticated, async (req, res) 
 
 app.post("/newsignup", async (req, res) => {
   try {
-    const { email, firstName, lastName, username, password, sub_type, freq_type, addressLine1, addressLine2, city, postcode, country,recipientAddressLine1, recipientAddressLine2, recipientCity, recipientPostcode, recipientCountry } = req.body;
+    const { email, firstName, lastName, username, password, sub_type, freq_type, addressLine1, addressLine2, city, postcode, country, recipientAddressLine1, recipientAddressLine2, recipientCity, recipientPostcode, recipientCountry, recipientEmail, preferences} = req.body;
     const account_address = [addressLine1, addressLine2, city, postcode, country].filter(Boolean).join(", ");
 
     const recipient_address = [recipientAddressLine1, recipientAddressLine2, recipientCity, recipientPostcode, recipientCountry].filter(Boolean).join(", ");
@@ -420,7 +420,7 @@ app.post("/newsignup", async (req, res) => {
     const newUserResult = await addNewUserData(email, firstName, lastName, username, hashedPassword);
     const newUser = newUserResult.rows[0];
 
-    await addAddress(email, account_address, recipient_address, sub_type, freq_type);
+    await addAddress(email, recipientEmail, account_address, recipient_address, sub_type, freq_type, preferences);
 
 
     req.login(newUser, async (err) => {
@@ -438,7 +438,8 @@ app.post("/newsignup", async (req, res) => {
          <a href="${verifyUrl}">Verify Email</a>`
       );
 
-      res.redirect("/payment");
+      res.redirect("/payment")
+      await generateFakeHistory(email, sub_type, freq_type);
     });
   } catch (err) {
     console.error("Signup error:", err);

@@ -134,8 +134,9 @@ body {
 #delivery-details,
 #subscription-history,
 #payment-methods {
-     background: #ffffff;
+    background: #ffffff;
     padding: 35px;
+    max-width: auto;
     border-radius: 18px;
     border: 1px solid rgba(160,44,62,0.15);
 
@@ -177,6 +178,13 @@ h3 {
     color: #A02c3e;
     margin-bottom: 18px;
     font-weight: 700;
+}
+
+.billing-table {
+    width: 600px;
+    max-width: 100%;
+    border-radius: 12px;
+    border-collapse: collapse;
 }
 
 /* ============================= */
@@ -274,6 +282,27 @@ button {
     border-radius: 8px;
     margin-bottom: 10px;
 }
+
+/* ============================= */
+/* Personalised Poem indicator styling */
+/* ============================= */
+.badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge-green {
+  background: #d4f8d4;
+  color: #1a7f1a;
+}
+
+.badge-grey {
+  background: #eee;
+  color: #555;
+}
+
 
 
 /* ============================= */

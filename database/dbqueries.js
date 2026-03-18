@@ -12,15 +12,14 @@ export async function addNewUserData(email, firstName, lastName, username, hashe
 }
 
 // New addresses also should not be soft-delete filtered
-export async function addAddress(accountEmail, accountAddress, recipientAddress, subType, freqType) {
+export async function addAddress(accountEmail, recipient_email, accountAddress, recipientAddress, subType, freqType, preferences) {
   return db.query(
-    `INSERT INTO addresses (account_email, account_address, recipient_address, sub_type, freq_type)
-     VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO addresses (account_email, recipient_email, account_address, recipient_address, sub_type, freq_type, preferences)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
      RETURNING *`,
-    [accountEmail, accountAddress, recipientAddress, subType, freqType]
+    [accountEmail, recipient_email, accountAddress, recipientAddress, subType, freqType, preferences]
   );
 }
-
 
 export async function updateSubscription(email, subType, freqType) {
   return db.query(

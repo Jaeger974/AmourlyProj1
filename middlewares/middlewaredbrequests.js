@@ -17,7 +17,6 @@ export default async function loadUserData(req, res, next) {
        WHERE email = $1 AND deleted_at IS NULL`,
       [email]
     );
-
     
 // If user is soft-deleted, force logout
 if (userResult.rows.length === 0) {
@@ -25,7 +24,6 @@ if (userResult.rows.length === 0) {
       req.session.destroy(() => {});
       return res.redirect("/login");
     }
-
 
     // Fresh subscription + address info
     const addressResult = await db.query(

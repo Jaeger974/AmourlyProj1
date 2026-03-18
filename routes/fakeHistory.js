@@ -1,8 +1,23 @@
 import db from "../database/db.js";
 
-
-
 export async function generateFakeHistory(email) {
+   try {
+    const existing = await db.query(
+      `SELECT id FROM transactions
+       WHERE account_email = $1 AND fake = TRUE
+       LIMIT 1`,
+      [email]
+    );
+
+    if (existing.rows.length > 0) {
+      console.log("Fake history already exists — skipping.");
+      return;
+    }
+  } catch (err) {
+    console.error("Error checking for existing fake history:", err);
+    throw err;
+  }
+
   try{
   const { rows } = await db.query(
     `SELECT sub_type, freq_type 
@@ -30,20 +45,20 @@ export async function generateFakeHistory(email) {
 
   const months = [1, 2, 3, 4, 5];
 
-  const inserts = months.map(m =>
-    db.query(
-      `INSERT INTO transactions 
-         (account_email, amount, description, sub_type, freq_type, created_at, fake)
-       VALUES ($1, $2, $3, $4, $5, NOW() - INTERVAL '${m} months', TRUE)`,
-      [
-        email,
-        amount,
-        `Subscription charge: ${sub_type} (${freq_type})`,
-        sub_type,
-        freq_type
-      ]
-    )
-  );
+ const inserts = months.map(m =>
+  db.query(
+    `INSERT INTO transactions 
+       (account_email, amount, personalised, sub_type, freq_type, created_at, fake)
+     VALUES ($1, $2, $3, $4, $5, NOW() - INTERVAL '${m} months', TRUE)`,
+    [
+      email,
+      amount,
+      false,        // personalised = FALSE for fake history
+      sub_type,
+      freq_type
+    ]
+  )
+);
 
   return Promise.all(inserts);
   } catch (err) {

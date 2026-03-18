@@ -26,12 +26,12 @@
         
       <div class="confirmation-container">
               <h2>Confirm Details:</h2>
-                <p>Name: <%= user.firstName %> <%= user.lastName %></p>
+                <p>Name: <%= user.firstname %> <%= user.lastname %></p>
                 <p>Email: <%= user.email %></p>
                 <p>Username: <%= user.username %></p>
                 <p>Subscription Type: <%= subscription.sub_type %></p>
                 <p>Frequency: <%= subscription.freq_type %></p>
-                <p>Delivery Email: <%= subscription.recipientEmail %></p>
+                <p>Delivery Email: <%= subscription.recipient_email %></p>
                 <p>Delivery Address: <%= subscription.recipientAddress || `N/A` %></p>
       </div>
 

@@ -130,7 +130,7 @@
       <tr>
         <th>Date</th>
         <th>Amount</th>
-        <th>Description</th>
+        <th>Personalised?</th>
         <th>Subscription</th>
         <th>Frequency</th>
         <th>Status</th>
@@ -141,9 +141,15 @@
       <tr>
       <td><%= t.created_at.toLocaleDateString() %></td>
       <td>£<%= t.amount %></td>
-      <td><%= t.description %></td>
-      <td><%= t.sub_type %></td>
-      <td><%= t.freq_type %></td>
+        <td>
+          <% if (t.personalised) { %>
+            <span class="badge badge-green">Personalised</span>
+          <% } else { %>
+            <span class="badge badge-grey">Unpersonalised</span>
+          <% } %>
+        </td>
+      <td><%= subTypeLabels[t.sub_type] %></td>
+      <td><%= freqLabels[t.freq_type] %></td>
       <td><%= t.status %></td>
       </tr>
     <% }) %>
