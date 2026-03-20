@@ -24,6 +24,8 @@ import { sendEmail } from "./services/emailExampleService.js";
 import { generateToken } from "./services/tokenService.js";
 import { generateFakeHistory } from "./routes/fakeHistory.js";
 import db from "./database/db.js";
+import { welcomeEmailHTML } from "./emails/newSignUp.js";
+
 
 import engine from "ejs-mate";
 
@@ -429,14 +431,12 @@ app.post("/newsignup", async (req, res) => {
       const token = generateToken();
       await saveVerificationToken(email, token);
 
-      const verifyUrl = `http://localhost:3000/verify-email?token=${token}`;
+    await sendEmail(
+  email,
+  "Verify Your Email",
+  welcomeEmailHTML(firstName, token)
+);
 
-      await sendEmail(
-        email,
-        "Verify Your Email",
-        `<p>Welcome, ${firstName}! Click below to verify:</p>
-         <a href="${verifyUrl}">Verify Email</a>`
-      );
 
       res.redirect("/payment")
       await generateFakeHistory(email, sub_type, freq_type);
