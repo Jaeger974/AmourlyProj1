@@ -25,7 +25,8 @@ import { generateToken } from "./services/tokenService.js";
 import { generateFakeHistory } from "./routes/fakeHistory.js";
 import db from "./database/db.js";
 import { welcomeEmailHTML } from "./emails/newSignUp.js";
-
+import { samplePoemHTML } from "./emails/samplePoem.js";
+import getRandomPoem from "./services/poemDbApi.js";
 
 import engine from "ejs-mate";
 
@@ -303,6 +304,35 @@ app.post("/yourdashboard", ensureAuthenticated, async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+
+app.post("/yourdashboard/send-recipient-email", ensureAuthenticated, async (req, res) => {
+  try {
+    const email = req.user.email;
+    
+    const result = await loadUserData(req, res, () => Promise.resolve());
+
+    if (result.rows.length === 0) { 
+      return res.status(404).send("Recipient email not found");
+    }
+
+    const recipientEmail = result.rows[0].recipient_email;
+    const poem = await getRandomPoem();
+    const poemHTML = poem.lines.map(line => `${line}<br>`).join("");
+
+    await sendEmail(
+      email,
+       "You've been Amored! 💘",
+       samplePoemHTML(recipientEmail, poem.title, poem.author, poemHTML)
+    );
+
+    
+    res.sendStatus(200);
+  } catch (err) {
+    console.error("Error sending recipient email:", err);
+    res.status(500).send("Server error");
+  }
+});
+
 
 app.post("/delete-account", ensureAuthenticated, async (req, res) => {
   try {
