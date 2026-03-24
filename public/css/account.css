@@ -120,6 +120,16 @@ body {
 
 }
 
+.modal-body {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid rgba(160,44,62,0.15);
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.08),
+        0 4px 12px rgba(160,44,62,0.08);
+}
+
 
 /* ============================= */
 /* Card Base Styling */

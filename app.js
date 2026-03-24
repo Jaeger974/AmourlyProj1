@@ -26,7 +26,7 @@ import { generateFakeHistory } from "./routes/fakeHistory.js";
 import db from "./database/db.js";
 import { welcomeEmailHTML } from "./emails/newSignUp.js";
 import { samplePoemHTML } from "./emails/samplePoem.js";
-import getRandomPoem from "./services/poemDbApi.js";
+import getRandomPoem from "./emails/poemDbApi.js";
 
 import engine from "ejs-mate";
 

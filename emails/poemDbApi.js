@@ -5,3 +5,5 @@ export async function getRandomPoem() {
   const data = await res.json();
   return data[0]; // contains title, author, lines[]
 }
+
+export default getRandomPoem;
