@@ -20,9 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
     saveBtn.style.display = 'none';
     editBtn.style.display = 'inline';
 
-   
-
-
     // Send to server
     fetch('/save-date', {
       method: 'POST',

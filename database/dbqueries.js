@@ -21,6 +21,16 @@ export async function addAddress(accountEmail, recipient_email, accountAddress, 
   );
 }
 
+export async function retrieveRecipientEmail(email) {
+  return db.query(
+    `SELECT recipient_email 
+     FROM addresses 
+     WHERE account_email = $1 
+       AND deleted_at IS NULL`,
+    [email]
+  );
+}
+
 export async function updateSubscription(email, subType, freqType) {
   return db.query(
     `UPDATE addresses
@@ -110,6 +120,20 @@ export async function updateRecipientPreferences(email, preferences) {
   );
 }
 
+export async function getSendDate(recipientId) {
+  const result = await db.query(
+    'SELECT scheduled_send_date FROM addresses WHERE id = $1',
+    [recipientId]
+  );
+  return result.rows[0]?.scheduled_send_date || null;
+}
+
+export async function saveSendDate(date, recipientId) {
+  await db.query(
+    'UPDATE addresses SET scheduled_send_date = $1 WHERE id = $2',
+    [date, recipientId]
+  );
+}
 
 export async function softDeleteUserByEmail(email) {
   try {

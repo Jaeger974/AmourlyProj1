@@ -1,6 +1,7 @@
-export function samplePoemHTML(recipientName, poemTitle, poemAuthor, poemHTML) {
+export function samplePoemHTML(email, recipientName, poemTitle, poemAuthor, poemHTML) {
 
 const unwantedEmail = `http://localhost:3000/unwanted-email?recipient=${encodeURIComponent(recipientName)}    &poem=${encodeURIComponent(poemTitle)}  &author=${encodeURIComponent(poemAuthor)}`;
+
 
   return `
 <!DOCTYPE html>

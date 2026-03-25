@@ -18,7 +18,7 @@ import { addNewUserData, saveFeedback, addAddress,
   updateRecipientPreferences, changeUserPassword, softDeleteUserByEmail, 
   updateSubscription, updateUserAddress, updateSubscriptionWithAddress, 
   updateRecipientDetails, updateUserProfile, getUserTransactions,
-  saveVerificationToken
+  saveVerificationToken, getSendDate, saveSendDate, retrieveRecipientEmail
 } from "./database/dbqueries.js";
 import { sendEmail } from "./services/emailExampleService.js";
 import { generateToken } from "./services/tokenService.js";
@@ -308,8 +308,7 @@ app.post("/yourdashboard", ensureAuthenticated, async (req, res) => {
 app.post("/yourdashboard/send-recipient-email", ensureAuthenticated, async (req, res) => {
   try {
     const email = req.user.email;
-    
-    const result = await loadUserData(req, res, () => Promise.resolve());
+    const result = await retrieveRecipientEmail(email);
 
     if (result.rows.length === 0) { 
       return res.status(404).send("Recipient email not found");
