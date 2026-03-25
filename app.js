@@ -314,18 +314,24 @@ app.post("/yourdashboard/send-recipient-email", ensureAuthenticated, async (req,
       return res.status(404).send("Recipient email not found");
     }
 
+    
     const recipientEmail = result.rows[0].recipient_email;
     const poem = await getRandomPoem();
     const poemHTML = poem.lines.map(line => `${line}<br>`).join("");
 
     await sendEmail(
-      email,
+      recipientEmail,
        "You've been Amored! 💘",
        samplePoemHTML(recipientEmail, poem.title, poem.author, poemHTML)
     );
-
     
-    res.sendStatus(200);
+    return res.render("yourdashboard", {
+      flash: {
+        type: "success",
+        text: `An Amore has been sent to ${recipientEmail}!`
+      }
+    });
+
   } catch (err) {
     console.error("Error sending recipient email:", err);
     res.status(500).send("Server error");
@@ -460,7 +466,7 @@ app.post("/newsignup", async (req, res) => {
       const token = generateToken();
       await saveVerificationToken(email, token);
 
-    await sendEmail(
+  await sendEmail(
   email,
   "Verify Your Email",
   welcomeEmailHTML(firstName, token)

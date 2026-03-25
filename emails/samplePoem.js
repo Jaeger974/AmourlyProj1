@@ -1,7 +1,7 @@
-export function samplePoemHTML(email, recipientName, poemTitle, poemAuthor, poemHTML) {
+export function samplePoemHTML(recipientName, poemTitle, poemAuthor, poemHTML) {
 
-const unwantedEmail = `http://localhost:3000/unwanted-email?recipient=${encodeURIComponent(recipientName)}    &poem=${encodeURIComponent(poemTitle)}  &author=${encodeURIComponent(poemAuthor)}`;
-
+const unwantedEmail =
+`http://localhost:3000/unwanted-email?recipient=${encodeURIComponent(recipientName)}`;
 
   return `
 <!DOCTYPE html>
@@ -9,26 +9,12 @@ const unwantedEmail = `http://localhost:3000/unwanted-email?recipient=${encodeUR
 <head>
 <meta charset="UTF-8" />
 <style>
-<style>
   body, html {
     margin: 0;
     padding: 0;
     font-family: "Helvetica Neue", Arial, sans-serif;
     background-color: #fff7fa;
     color: #3a2a2a;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    body, html {
-      background-color: #2b2b2b !important;
-      color: #f2f2f2 !important;
-    }
-    .poem-box {
-      background: #3a3a3a !important;
-    }
-    .cta-button {
-      background: #ff4f9a !important;
-    }
   }
 
   .container {
@@ -58,6 +44,27 @@ const unwantedEmail = `http://localhost:3000/unwanted-email?recipient=${encodeUR
     margin-bottom: 16px;
   }
 
+    .cta-button {
+    display: inline-block;
+    background: #b30059;
+    color: #ffffff !important;
+    padding: 10px 15px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  .button-wrapper {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .cta-button:hover {
+    background: #8a0047;
+  }
+
   .poem-box {
     background: #ffe3ec;
     padding: 20px;
@@ -80,22 +87,7 @@ const unwantedEmail = `http://localhost:3000/unwanted-email?recipient=${encodeUR
     margin-bottom: 16px;
   }
 
-  .cta-button {
-    display: inline-block;
-    background: #b30059;
-    color: #ffffff !important;
-    padding: 10px 15px;
-    border-radius: 10px;
-    text-decoration: none;
-    font-weight: bold;
-    margin-top: 20px;
-    text-align: center;
-  }
-
-  .button-wrapper {
-    text-align: center;
-    margin-top: 20px;
-  }
+  
 
   .footer {
     text-align: center;
@@ -109,20 +101,62 @@ const unwantedEmail = `http://localhost:3000/unwanted-email?recipient=${encodeUR
     background: #ffe3ec;
     margin: 24px 0;
   }
+  
+    @media (prefers-color-scheme: dark) {
+    body, html {
+      background-color: #2b2b2b !important;
+      color: #f2f2f2 !important;
+    }
+    .poem-box {
+      background: #3a3a3a !important;
+    }
+    .cta-button {
+      background: #ff4f9a !important;
+    }
+  }
+
 </style>
 
 </head>
 <body>
-  <div class="container">
+  <table
+    align="center"
+    width="100%"
+    border="0"
+    cellpadding="0"
+    cellspacing="0"
+    role="presentation"
+    style="padding:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto','Oxygen','Ubuntu','Cantarell','Fira Sans','Droid Sans','Helvetica Neue',sans-serif;font-size:1.1em;line-height:155%;background-color:#fab7b7;"
+  >
+    <tbody>
+      <tr>
+        <td align="center">
 
-    <p>Hey you! You’ve received a surprise Amore from <strong>${email}</strong>.  
-    Yes, someone out there is thinking about you. Stay humble.</p>
+          <!-- INNER ROUNDED CARD -->
+          <table
+            align="center"
+            width="100%"
+            border="0"
+            cellpadding="0"
+            cellspacing="0"
+            role="presentation"
+            style="max-width:600px;background-color:#ff8b8b;border-radius:36px;padding:20px;"
+          >
+            <tbody>
+              <tr>
+                <td align="center">
+
+                  <!-- CONTENT CONTAINER -->
+                  <div class="container">
+
+    <p>Hey you! You’ve received a surprise Amore.
+    Yes, someone out there is thinking about you. You're special!</p>
 
     <div class="divider"></div>
 
     <div class="poem-box">
-      <div class="poem-title">${poem.title}</div>
-      <div class="poem-author">by ${poem.author}</div>
+      <div class="poem-title">${poemTitle}</div>
+      <div class="poem-author">by ${poemAuthor}</div>
       <p>${poemHTML}</p>
     </div>
 
@@ -143,7 +177,19 @@ const unwantedEmail = `http://localhost:3000/unwanted-email?recipient=${encodeUR
     </div>
 
   </div>
+</div>
+                  <!-- END CONTAINER -->
 
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- END INNER CARD -->
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </html>
   `;
 }

@@ -8,9 +8,7 @@ export function welcomeEmailHTML(firstName, token) {
 <head>
 <meta charset="UTF-8" />
 <style>
-
-      
-  body, html {
+    body, html {
     margin: 0;
     padding: 0;
     font-family: "Helvetica Neue", Arial, sans-serif;
