@@ -129,6 +129,8 @@ app.get("/yourdashboard", ensureAuthenticated, loadUserData, async (req, res) =>
   const flashMessage = req.flash("alert")[0] || null;
   const email = req.user.email;
   const { rows: transactions } = await getUserTransactions(email);
+  const poem = await getRandomPoem();
+  const poemHTML = poem.lines.join("<br>");
 
     if (!res.locals.subscription) {
       return res.redirect("/changesubscription");
@@ -137,7 +139,9 @@ app.get("/yourdashboard", ensureAuthenticated, loadUserData, async (req, res) =>
   res.render("PS_account", {
       user: res.locals.user,
       subscription: res.locals.subscription,
-      transactions, 
+      transactions,
+      poem,
+      poemHTML,
       flash: flashMessage,
     });
 
@@ -325,17 +329,22 @@ app.post("/yourdashboard/send-recipient-email", ensureAuthenticated, loadUserDat
        "You've been Amored! 💘",
        samplePoemHTML(recipientEmail, poem.title, poem.author, poemHTML)
     );
-    
-    return res.render("PS_account", {
-      flash: {
-        type: "success",
-        text: `An Amore has been sent to ${recipientEmail}!`
-      }
-    });
+     const { rows: transactions } = await getUserTransactions(email);
 
+      return res.render("PS_account", {
+        user: res.locals.user,
+        subscription: res.locals.subscription,
+        transactions,
+        poem,
+        poemHTML,
+        flash: {
+          type: "success",
+          text: `An Amore has been sent to ${recipientEmail}!`
+        }
+      });
   } catch (err) {
     console.error("Error sending recipient email:", err);
-    res.status(500).send("Server error");
+    return res.status(500).send("Server error while sending email");
   }
 });
 
