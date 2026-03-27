@@ -130,7 +130,7 @@ app.get("/yourdashboard", ensureAuthenticated, loadUserData, async (req, res) =>
   const email = req.user.email;
   const { rows: transactions } = await getUserTransactions(email);
   const poem = await getRandomPoem();
-  const poemHTML = poem.lines.join("<br>");
+  const poemHTML = poem.lines.map(line => `${line}<br>`).join("");
 
     if (!res.locals.subscription) {
       return res.redirect("/changesubscription");
@@ -342,6 +342,7 @@ app.post("/yourdashboard/send-recipient-email", ensureAuthenticated, loadUserDat
           text: `An Amore has been sent to ${recipientEmail}!`
         }
       });
+
   } catch (err) {
     console.error("Error sending recipient email:", err);
     return res.status(500).send("Server error while sending email");

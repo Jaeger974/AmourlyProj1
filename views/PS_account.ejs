@@ -74,8 +74,8 @@
                 <p>Frequency: <%= freqLabels[subscription.freq_type] %></p>
 
             <p>Next Amourly:</p>
-            <p id="preview-poem"><%= poemHTML  %>
-                <strong>- <%= poem.author %></strong> </p>
+            <p id="preview-poem"><%- poemHTML  %>
+                <strong>- <%- poem.author %></strong> </p>
             <p>Next Scheduled Send date: <%= subscription.scheduled_send_date ? subscription.scheduled_send_date.toLocaleDateString() : "No send date on file" %></p>  
 
               <button class="send-recipient-email-btn" data-bs-toggle="modal" data-bs-target="#sendRecipientModal">
