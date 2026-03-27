@@ -16,7 +16,6 @@ export async function generateFakeHistory(email) {
   } catch (err) {
     console.error("Error checking for existing fake history:", {
   message: err.message,
-  stack: err.stack
 });
     throw err;
   }
