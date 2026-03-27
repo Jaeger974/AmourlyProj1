@@ -96,7 +96,7 @@ body {
     color: #555;
 }
 
-#recipient-detail p {
+#recipient-detail p, #personal-details p {
     font-weight: 600;
     color: #A02c3e;
     margin-top: 20px;
@@ -117,12 +117,11 @@ body {
 .account-second-row {
     border-top: 1px solid rgba(160,44,62,0.15);
     padding-top: 40px;
-
 }
-/* 
+
 .modal-content {
     background: #fff;
-    padding: 0; /* keep Bootstrap spacing intact
+    padding: 0; /* keep Bootstrap spacing intact*/
     border-radius: 12px;
     border: 1px solid rgba(160,44,62,0.15);
     box-shadow:
@@ -151,16 +150,16 @@ body {
 /* ============================= */
 /* Card Base Styling */
 /* ============================= */
-#current-subscription-details {
+#subscription-history {
     grid-column: span 2;
 }
-
 
 #personal-details,
 #current-subscription-details,
 #delivery-details,
 #subscription-history,
-#payment-methods {
+#payment-methods,
+#subscription-management {
     background: #ffffff;
     padding: 35px;
     max-width: auto;
@@ -180,7 +179,8 @@ body {
 #current-subscription-details::before,
 #delivery-details::before,
 #subscription-history::before,
-#payment-methods::before {
+#payment-methods::before,
+#subscription-management::before {
     content: "";
     position: absolute;
     top: 0;
@@ -195,7 +195,8 @@ body {
 #current-subscription-details:hover,
 #delivery-details:hover,
 #subscription-history:hover,
-#payment-methods:hover {
+#payment-methods:hover,
+#subscription-management:hover {
     transform: translateY(-6px);
     box-shadow:
         0 18px 40px rgba(0,0,0,0.15),
