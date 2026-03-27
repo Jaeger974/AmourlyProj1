@@ -278,7 +278,7 @@ app.post("/login",
   })
 );
 
-app.post("/yourdashboard", ensureAuthenticated, async (req, res) => {
+app.post("/yourdashboard", ensureAuthenticated, loadUserData, async (req, res) => {
   console.log("Dashboard session:", req.session);
 
   const { finalPrice } = req.body;
@@ -305,7 +305,8 @@ app.post("/yourdashboard", ensureAuthenticated, async (req, res) => {
   }
 });
 
-app.post("/yourdashboard/send-recipient-email", ensureAuthenticated, async (req, res) => {
+app.post("/yourdashboard/send-recipient-email", ensureAuthenticated, loadUserData, async (req, res) => {
+  
   try {
     const email = req.user.email;
     const result = await retrieveRecipientEmail(email);
@@ -325,7 +326,7 @@ app.post("/yourdashboard/send-recipient-email", ensureAuthenticated, async (req,
        samplePoemHTML(recipientEmail, poem.title, poem.author, poemHTML)
     );
     
-    return res.render("yourdashboard", {
+    return res.render("PS_account", {
       flash: {
         type: "success",
         text: `An Amore has been sent to ${recipientEmail}!`

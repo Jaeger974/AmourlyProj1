@@ -8,6 +8,7 @@ const unwantedEmail =
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+
 <style>
   body, html {
     margin: 0;
