@@ -97,6 +97,17 @@ export async function changeUserPassword(email, hashedPassword) {
   );
 }
 
+export async function getDeliveryDate(email) {
+  const result = await db.query(
+    `SELECT scheduled_send_date 
+     FROM addresses 
+     WHERE account_email = $1 
+       AND deleted_at IS NULL`,
+    [email]
+  );
+  return result.rows[0]?.scheduled_send_date || null;
+}
+
 export async function updateRecipientDetails(email, recipientEmail, recipientAddress) {
   return db.query(
     `UPDATE addresses

@@ -18,7 +18,7 @@ import { addNewUserData, saveFeedback, addAddress,
   updateRecipientPreferences, changeUserPassword, softDeleteUserByEmail, 
   updateSubscription, updateUserAddress, updateSubscriptionWithAddress, 
   updateRecipientDetails, updateUserProfile, getUserTransactions,
-  saveVerificationToken, retrieveRecipientEmail
+  saveVerificationToken, retrieveRecipientEmail, getDeliveryDate, 
 } from "./database/dbqueries.js";
 import { sendEmail } from "./services/emailExampleService.js";
 import { generateToken } from "./services/tokenService.js";
@@ -27,6 +27,7 @@ import db from "./database/db.js";
 import { welcomeEmailHTML } from "./emails/newSignUp.js";
 import { samplePoemHTML } from "./emails/samplePoem.js";
 import getRandomPoem from "./emails/poemDbApi.js";
+import { refreshScheduledDate, nextPaymentDate } from "./emails/scheduleSetter.js";
 
 import engine from "ejs-mate";
 
@@ -131,6 +132,10 @@ app.get("/yourdashboard", ensureAuthenticated, loadUserData, async (req, res) =>
   const { rows: transactions } = await getUserTransactions(email);
   const poem = await getRandomPoem();
   const poemHTML = poem.lines.map(line => `${line}<br>`).join("");
+  await refreshScheduledDate(email);
+  const nextPayment = await nextPaymentDate(email);
+  const scheduledDate = await getDeliveryDate(email);
+
 
     if (!res.locals.subscription) {
       return res.redirect("/changesubscription");
@@ -141,6 +146,8 @@ app.get("/yourdashboard", ensureAuthenticated, loadUserData, async (req, res) =>
       subscription: res.locals.subscription,
       transactions,
       poem,
+      scheduledDate,
+      nextPayment,
       poemHTML,
       flash: flashMessage,
     });
