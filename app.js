@@ -18,7 +18,7 @@ import { addNewUserData, saveFeedback, addAddress,
   updateRecipientPreferences, changeUserPassword, softDeleteUserByEmail, 
   updateSubscription, updateUserAddress, updateSubscriptionWithAddress, 
   updateRecipientDetails, updateUserProfile, getUserTransactions,
-  saveVerificationToken, getSendDate, saveSendDate, retrieveRecipientEmail
+  saveVerificationToken, retrieveRecipientEmail
 } from "./database/dbqueries.js";
 import { sendEmail } from "./services/emailExampleService.js";
 import { generateToken } from "./services/tokenService.js";
@@ -458,18 +458,17 @@ app.post("/changedetails/update-details", ensureAuthenticated, async (req, res) 
 
 app.post("/newsignup", async (req, res) => {
   try {
-    const { email, firstName, lastName, username, password, sub_type, freq_type, addressLine1, addressLine2, city, postcode, country, recipientAddressLine1, recipientAddressLine2, recipientCity, recipientPostcode, recipientCountry, recipientEmail, preferences} = req.body;
+    const { email, firstName, lastName, username, password, sub_type, freq_type, addressLine1, addressLine2, city, postcode, country, recipientAddressLine1, recipientAddressLine2, recipientCity, recipientPostcode, recipientCountry, recipientEmail, preferences, startDate} = req.body;
     const account_address = [addressLine1, addressLine2, city, postcode, country].filter(Boolean).join(", ");
 
     const recipient_address = [recipientAddressLine1, recipientAddressLine2, recipientCity, recipientPostcode, recipientCountry].filter(Boolean).join(", ");
-    
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUserResult = await addNewUserData(email, firstName, lastName, username, hashedPassword);
     const newUser = newUserResult.rows[0];
 
-    await addAddress(email, recipientEmail, account_address, recipient_address, sub_type, freq_type, preferences);
-
+    await addAddress(email, recipientEmail, account_address, recipient_address, sub_type, freq_type, preferences, startDate);
 
     req.login(newUser, async (err) => {
       if (err) return res.status(500).send("Server error");

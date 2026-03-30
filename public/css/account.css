@@ -215,6 +215,16 @@ h3 {
     border-collapse: collapse;
 }
 
+
+#account-edit-options {
+gap: 12px;
+display: flex;
+flex-direction: column;
+}
+
+#payment-check {
+    margin-top: 50px;
+}
 /* ============================= */
 /* Buttons */
 /* ============================= */

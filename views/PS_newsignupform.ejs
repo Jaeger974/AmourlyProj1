@@ -113,6 +113,29 @@
         <label for="recipientEmail">Recipient Email</label>
     </div>
 
+    <div class="date-chooser">
+        <%
+  const today = new Date();
+  const minDate = today.toISOString().split("T")[0];
+
+  const max = new Date();
+  max.setMonth(max.getMonth() + 3);
+  const maxDate = max.toISOString().split("T")[0];
+%>
+
+        <label for="startDate">Start Date: </label>
+  <input 
+    type="date" 
+    id="startDate" 
+    name="startDate"
+    min="<%= minDate %>"
+    max="<%= maxDate %>"
+    required
+  >
+  <p>Choose a date within the next 3 months</p>
+
+    </div>
+
     <!-- Recipient Address -->
     <div id="recipientAddressContainer" class="hidden">
 
