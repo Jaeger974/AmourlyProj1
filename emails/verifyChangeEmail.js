@@ -1,21 +1,17 @@
-export function samplePoemHTML(recipientName, poemTitle, poemAuthor, poemHTML) {
-
-const unwantedEmail =
-`http://localhost:3000/unwanted-email?recipient=${encodeURIComponent(recipientName)}`;
+export function verifyChangeEmailHTML(email, verificationLink) {
 
   return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-
 <style>
   body, html {
     margin: 0;
     padding: 0;
     font-family: "Helvetica Neue", Arial, sans-serif;
     background-color: #fff7fa;
-    color: #e47474;
+    color: #3a2a2a;
   }
 
   .container {
@@ -43,7 +39,6 @@ const unwantedEmail =
     line-height: 1.6;
     font-size: 16px;
     margin-bottom: 16px;
-
   }
 
     .cta-button {
@@ -60,19 +55,19 @@ const unwantedEmail =
 
   .button-wrapper {
     text-align: center;
-    margin: 40px;
+    margin-top: 20px;
   }
 
   .cta-button:hover {
     background: #8a0047;
   }
 
-  .poem-box {
+  .main-text {
     background: #ffe3ec;
     padding: 20px;
     border-radius: 12px;
-    margin-top: 40px;
-    margin-bottom: 40px;
+    margin-top: 20px;
+    margin-bottom: 20px;
   }
 
   .poem-title {
@@ -93,7 +88,7 @@ const unwantedEmail =
 
   .footer {
     text-align: center;
-    margin-top: 60px;
+    margin-top: 40px;
     font-size: 13px;
     color: #7a6f6f;
   }
@@ -151,28 +146,19 @@ const unwantedEmail =
                   <!-- CONTENT CONTAINER -->
                   <div class="container">
 
-    <p>
-    Oop—guess what. Someone just dropped an Amore on you like a chaotic emotional grenade.  
-      Yep. A real human being thought, “You know who deserves unsolicited tenderness today? <em>You.</em>”
-    </p>
+    <p></p>
 
     <div class="divider"></div>
 
-    <div class="poem-box">
-      <p>${poemHTML}</p>
-      <div class="poem-title">${poemTitle}</div>
-      <div class="poem-author">by ${poemAuthor}</div>
+    <div class="main-text">
+        <h1>Verify Your New Email Address</h1>
     </div>
 
     <div class="divider"></div>
 
-    <p>
-      If you’re not vibing with these poetic love‑bombs, you can tell Cupid to chill by clicking below.
-    </p>
-
     <div class="button-wrapper">
-      <a href="${unwantedEmail}" class="cta-button">
-        Please stop emotionally ambushing me with poems.
+      <a href="${verificationLink}" class="cta-button">
+        Verify Email Address
       </a>
     </div>
 
@@ -182,7 +168,7 @@ const unwantedEmail =
 
   </div>
 </div>
-<!-- END CONTAINER -->
+                  <!-- END CONTAINER -->
 
                 </td>
               </tr>

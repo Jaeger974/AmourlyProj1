@@ -26,8 +26,8 @@ import { generateFakeHistory } from "./routes/fakeHistory.js";
 import db from "./database/db.js";
 import { welcomeEmailHTML } from "./emails/newSignUp.js";
 import { samplePoemHTML } from "./emails/samplePoem.js";
-import getRandomPoem from "./emails/poemDbApi.js";
-import { refreshScheduledDate, nextPaymentDate } from "./emails/scheduleSetter.js";
+import getRandomPoem from "./database/poemDbApi.js";
+import { refreshScheduledDate, nextPaymentDate, getSubscriptionCost } from "./database/scheduleSetter.js";
 
 import engine from "ejs-mate";
 
@@ -135,7 +135,7 @@ app.get("/yourdashboard", ensureAuthenticated, loadUserData, async (req, res) =>
   await refreshScheduledDate(email);
   const nextPayment = await nextPaymentDate(email);
   const scheduledDate = await getDeliveryDate(email);
-
+  const subscriptionCost = await getSubscriptionCost(email);
 
     if (!res.locals.subscription) {
       return res.redirect("/changesubscription");
@@ -148,6 +148,7 @@ app.get("/yourdashboard", ensureAuthenticated, loadUserData, async (req, res) =>
       poem,
       scheduledDate,
       nextPayment,
+      subscriptionCost,
       poemHTML,
       flash: flashMessage,
     });
@@ -326,10 +327,15 @@ app.post("/yourdashboard/send-recipient-email", ensureAuthenticated, loadUserDat
       return res.status(404).send("Recipient email not found");
     }
 
-    
+    await refreshScheduledDate(email);
+    const nextPayment = await nextPaymentDate(email);
+    const scheduledDate = await getDeliveryDate(email);
+    const subscriptionCost = await getSubscriptionCost(email);
+
     const recipientEmail = result.rows[0].recipient_email;
     const poem = await getRandomPoem();
     const poemHTML = poem.lines.map(line => `${line}<br>`).join("");
+
 
     await sendEmail(
       recipientEmail,
@@ -342,6 +348,9 @@ app.post("/yourdashboard/send-recipient-email", ensureAuthenticated, loadUserDat
         user: res.locals.user,
         subscription: res.locals.subscription,
         transactions,
+        subscriptionCost,
+        nextPayment,
+        scheduledDate,
         poem,
         poemHTML,
         flash: {

@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import db from "../database/db.js";
+import db from "./db.js";
 
 
 export function getNextDate(currentDate, frequency) {
@@ -89,6 +89,73 @@ export async function nextPaymentDate(email) {
 
   } catch (error) {
     console.error("Error fetching next payment date:", error);
+    throw error;
+  }
+}
+
+
+export async function getScheduledDate(email) {
+  try {
+    const result = await db.query(
+      `SELECT scheduled_send_date 
+       FROM addresses
+       WHERE account_email = $1
+         AND deleted_at IS NULL`,
+      [email]
+    );
+
+    if (!result.rows.length) return null;
+
+    const scheduledSendDate = result.rows[0].scheduled_send_date;
+    return scheduledSendDate;
+
+  } catch (error) {
+    console.error("Error fetching scheduled date:", error);
+    throw error;
+  }
+}
+
+export async function getSubscriptionCost(email) {
+  const pricing = {
+  option1: 3.99,
+  option2: 9.99,
+  option3: 24.99
+};
+
+const freqMultiplier = {
+  option1: 2.4,
+  option2: 1,
+  option3: 0.7,
+  option4: 0.6
+}
+try {
+    const result = await db.query(
+      `SELECT sub_type, freq_type
+       FROM addresses
+       WHERE account_email = $1
+         AND deleted_at IS NULL`,
+      [email]
+    );
+
+    if (!result.rows.length) return null;
+
+    const { sub_type, freq_type } = result.rows[0];
+
+    // Validate existence
+    if (!pricing[sub_type] || !freqMultiplier[freq_type]) {
+      console.error("Invalid subscription or frequency type:", sub_type, freq_type);
+      return null;
+    }
+
+    // Calculate cost
+    const basePrice = pricing[sub_type];
+    const multiplier = freqMultiplier[freq_type];
+    const totalCost = basePrice * multiplier;
+
+    return Number(totalCost.toFixed(2)); // round to 2 decimals
+
+  } catch (error) {
+    console.error("Error calculating subscription cost:", error);
     throw error;
   }
 }
