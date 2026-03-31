@@ -8,192 +8,240 @@ const unwantedEmail =
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Someone sent you an Amore 💘</title>
 <style>
-  body, html {
-    margin: 0;
-    padding: 0;
-    font-family: "Helvetica Neue", Arial, sans-serif;
-    background-color: #fff7fa;
-    color: #e47474;
-  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  .container {
-    max-width: 600px;
-    margin: 0 auto;
-    border-radius: 12px;
-    padding: 32px;
-  }
-
-  h1 {
-    color: #b30059;
-    font-size: 30px;
-    margin-bottom: 12px;
-    text-align: center;
-  }
-
-  h2 {
-    color: #b30059;
-    font-size: 20px;
-    margin-top: 28px;
-    margin-bottom: 8px;
-  }
-
-  p {
+  body {
+    background-color: #e28fa9;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+    font-size: 16px;
     line-height: 1.6;
-    font-size: 16px;
-    margin-bottom: 16px;
-
+    color: #faa1ba;
   }
 
-    .cta-button {
-    display: inline-block;
-    background: #b30059;
-    color: #ffffff !important;
-    padding: 10px 15px;
-    border-radius: 10px;
-    text-decoration: none;
-    font-weight: bold;
-    margin-top: 20px;
+  .wrapper {
+    width: 100%;
+    padding: 40px 16px;
+    background-color: #1a0a0f;
+    border-radius: 24px;
+  }
+
+  .card {
+    max-width: 580px;
+    margin: 0 auto;
+    background-color: #fff5f5;
+    border-radius: 24px;
+    overflow: hidden;
+  }
+
+  /* Header */
+  .header {
+    background-color: #c0344d;
+    padding: 36px 40px 28px;
     text-align: center;
+    border-radius: 24px 24px 0 0;
   }
 
-  .button-wrapper {
-    text-align: center;
-    margin: 40px;
+  .header-eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #f8b4c0;
+    margin-bottom: 10px;
   }
 
-  .cta-button:hover {
-    background: #8a0047;
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff0f3;
+    line-height: 1.3;
   }
 
-  .poem-box {
-    background: #ffe3ec;
-    padding: 20px;
-    border-radius: 12px;
-    margin-top: 40px;
-    margin-bottom: 40px;
+  .header-heart {
+    font-size: 26px;
+    display: block;
+    margin-top: 8px;
   }
 
-  .poem-title {
-    font-size: 24px;
-    color: #b30059;
-    text-align: center;
-    margin-bottom: 6px;
+  /* Body */
+  .body {
+    padding: 36px 40px;
   }
 
-  .poem-author {
-    font-size: 16px;
-    text-align: center;
-    color: #7a6f6f;
-    margin-bottom: 16px;
-  }
-
-  
-
-  .footer {
-    text-align: center;
-    margin-top: 60px;
-    font-size: 13px;
-    color: #7a6f6f;
+  .intro-block {
+    background-color: #ffe0e5;
+    border-left: 4px solid #c0344d;
+    border-radius: 0 12px 12px 0;
+    padding: 18px 20px;
+    margin-bottom: 28px;
+    color: #5a1020;
+    font-size: 15px;
   }
 
   .divider {
     height: 1px;
-    background: #ffe3ec;
-    margin: 24px 0;
-  }
-  
-    @media (prefers-color-scheme: dark) {
-    body, html {
-      background-color: #2b2b2b !important;
-      color: #f2f2f2 !important;
-    }
-    .poem-box {
-      background: #3a3a3a !important;
-    }
-    .cta-button {
-      background: #ff4f9a !important;
-    }
+    background: linear-gradient(to right, transparent, #e8a0ad, transparent);
+    margin: 28px 0;
   }
 
+  /* Poem box */
+  .poem-box {
+    background-color: #3d0a18;
+    border-radius: 16px;
+    padding: 32px 28px;
+    margin: 8px 0;
+    text-align: center;
+  }
+
+  .poem-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #ffc8d0;
+    margin-bottom: 4px;
+  }
+
+  .poem-author {
+    font-size: 13px;
+    color: #e8a0ad;
+    margin-bottom: 24px;
+    letter-spacing: 0.04em;
+  }
+
+  .poem-content {
+    font-size: 15px;
+    color: #fff0f3;
+    line-height: 1.85;
+    white-space: pre-line;
+    text-align: left;
+    font-style: italic;
+  }
+
+  /* Opt-out section */
+  .optout-block {
+    margin-top: 8px;
+    border-radius: 12px;
+    padding: 18px 20px;
+    background-color: #ffe0e5;
+  }
+
+  .optout-block p {
+    font-size: 15px;
+    color: #4a1822;
+    margin-bottom: 18px;
+  }
+
+  /* CTA */
+  .cta-wrap {
+    text-align: center;
+    margin: 4px 0 8px;
+  }
+
+  .cta-button {
+    display: inline-block;
+    background-color: transparent;
+    color: #c0344d !important;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 12px 24px;
+    border-radius: 50px;
+    border: 2px solid #c0344d;
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid #f0c4cc;
+    padding: 20px 40px;
+    text-align: center;
+    background-color: #fff5f5;
+  }
+
+  .footer p {
+    font-size: 13px;
+    color: #9a4455;
+  }
+
+  .footer strong {
+    color: #c0344d;
+  }
+
+  @media (max-width: 600px) {
+    .header, .body { padding-left: 24px; padding-right: 24px; }
+    .footer { padding-left: 24px; padding-right: 24px; }
+    .header h1 { font-size: 22px; }
+    .poem-box { padding: 24px 20px; }
+  }
 </style>
-
 </head>
 <body>
-  <table
-    align="center"
-    width="100%"
-    border="0"
-    cellpadding="0"
-    cellspacing="0"
-    role="presentation"
-    style="padding:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto','Oxygen','Ubuntu','Cantarell','Fira Sans','Droid Sans','Helvetica Neue',sans-serif;font-size:1.1em;line-height:155%;background-color:#fab7b7;"
-  >
+<div class="wrapper">
+  <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
     <tbody>
       <tr>
         <td align="center">
-
-          <!-- INNER ROUNDED CARD -->
-          <table
-            align="center"
-            width="100%"
-            border="0"
-            cellpadding="0"
-            cellspacing="0"
-            role="presentation"
-            style="max-width:600px;background-color:#ff8b8b;border-radius:36px;padding:20px;"
-          >
+          <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="max-width:580px;">
             <tbody>
               <tr>
-                <td align="center">
+                <td>
+                  <div class="card">
 
-                  <!-- CONTENT CONTAINER -->
-                  <div class="container">
+                    <!-- HEADER -->
+                    <div class="header">
+                      <p class="header-eyebrow">Someone's thinking of you</p>
+                      <h1>You've been hit by an Amore</h1>
+                      <span class="header-heart">💘</span>
+                    </div>
 
-    <p>
-    Oop—guess what. Someone just dropped an Amore on you like a chaotic emotional grenade.  
-      Yep. A real human being thought, “You know who deserves unsolicited tenderness today? <em>You.</em>”
-    </p>
+                    <!-- BODY -->
+                    <div class="body">
 
-    <div class="divider"></div>
+                      <!-- Greeting -->
+                      <div class="intro-block">
+                        <p>Oop — guess what. Someone just dropped an Amore on you like a chaotic emotional grenade.<br><br>
+                        Yep. A real human being thought, "You know who deserves unsolicited tenderness today? <em>You.</em>"</p>
+                      </div>
 
-    <div class="poem-box">
-      <p>${poemHTML}</p>
-      <div class="poem-title">${poemTitle}</div>
-      <div class="poem-author">by ${poemAuthor}</div>
-    </div>
+                      <div class="divider"></div>
 
-    <div class="divider"></div>
+                      <!-- Poem -->
+                      <div class="poem-box">
+                        <div class="poem-title">${poemTitle}</div>
+                        <div class="poem-author">by ${poemAuthor}</div>
+                        <div class="poem-content">${poemHTML}</div>
+                      </div>
 
-    <p>
-      If you’re not vibing with these poetic love‑bombs, you can tell Cupid to chill by clicking below.
-    </p>
+                      <div class="divider"></div>
 
-    <div class="button-wrapper">
-      <a href="${unwantedEmail}" class="cta-button">
-        Please stop emotionally ambushing me with poems.
-      </a>
-    </div>
+                      <!-- Opt-out -->
+                      <div class="optout-block">
+                        <p>If you're not vibing with these poetic love‑bombs, you can tell Cupid to chill by clicking below.</p>
+                        <div class="cta-wrap">
+                          <a href="${unwantedEmail}" class="cta-button">Please stop emotionally ambushing me with poems.</a>
+                        </div>
+                      </div>
 
-    <div class="footer">
-      <p>Sent with chaotic affection by <strong>Amourly</strong> 💘</p>
-    </div>
+                    </div>
+                    <!-- END BODY -->
 
-  </div>
-</div>
-<!-- END CONTAINER -->
+                    <!-- FOOTER -->
+                    <div class="footer">
+                      <p>Sent with chaotic affection by <strong>Amourly</strong> 💘</p>
+                    </div>
 
+                  </div>
                 </td>
               </tr>
             </tbody>
           </table>
-          <!-- END INNER CARD -->
-
         </td>
       </tr>
     </tbody>
   </table>
+</div>
+</body>
 </html>
   `;
 }
