@@ -57,37 +57,38 @@ body {
 .main-body{
     text-align: center;
     padding: 40px 20px;
-    display:flex;
+    display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    gap: 40px;
 }
 
-.back-button {
-  display: inline-block;
-  margin-bottom: 20px;
-  padding: 0.4rem 0.8rem;   /* small size */
-  font-size: 0.9rem;
-  background: #fc5c7d;      /* eye-catching color */
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  transition: transform 0.2s, box-shadow 0.2s;
+.btn-secondary {
+    padding: 10px 20px;
+    position: fixed;
+    top: 400px;
+    left: 50px;
+    background: #d35151;
+    color:#fcd6d6; /* Inherit text color from parent */
+    text-decoration: none; 
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
-
-.back-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+.btn-secondary:hover {
+    background: #5a6edc;
+    transform: translateY(-2px);
 }
-
 
 
 .payment-page-container{
     max-width: 600px;
-    margin: 50px auto;
+    margin: 20px auto;
     padding: 20px;
+    align-self: center;
     background: #fff9f5;
     border-radius: 8px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.1);
@@ -250,7 +251,16 @@ form input:focus, form textarea:focus, form select:focus {
 }
 
 
-
+@media (max-width: 1000px) {
+    .main-body {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .btn-secondary {
+        position: static;
+        margin: 20px auto;
+    }
+}
 
 .footer{
     text-align: center;
