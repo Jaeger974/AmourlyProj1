@@ -218,6 +218,15 @@ export async function saveVerificationToken(email, token) {
   );
 }
 
+export async function markEmailUnverified(email) {
+  return pool.query(
+    `UPDATE logins 
+     SET email_verified = false 
+     WHERE email = $1`,
+    [email]
+  );
+}
+
 export async function getEmailByToken(token) {
   const result = await db.query(
     `SELECT email FROM email_verification_tokens WHERE token = $1`,

@@ -1,4 +1,5 @@
-export function verifyChangeEmailHTML(email, verificationLink) {
+export function verifyChangeEmailHTML(firstName, token) {
+  const verificationLink = `http://localhost:3000/verify-email/${token}`;
 
   return `
 <!DOCTYPE html>
@@ -151,7 +152,8 @@ export function verifyChangeEmailHTML(email, verificationLink) {
     <div class="divider"></div>
 
     <div class="main-text">
-        <h1>Verify Your New Email Address</h1>
+        <h1>${firstName}, you leveled up! We love that for you. 
+        Verify Your New Email Address now:</h1>
     </div>
 
     <div class="divider"></div>

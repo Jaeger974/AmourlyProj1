@@ -18,7 +18,7 @@ import { addNewUserData, saveFeedback, addAddress,
   updateRecipientPreferences, changeUserPassword, softDeleteUserByEmail, 
   updateSubscription, updateUserAddress, updateSubscriptionWithAddress, 
   updateRecipientDetails, updateUserProfile, getUserTransactions,
-  saveVerificationToken, retrieveRecipientEmail, getDeliveryDate, 
+  saveVerificationToken, retrieveRecipientEmail, getDeliveryDate, markEmailUnverified
 } from "./database/dbqueries.js";
 import { sendEmail } from "./services/emailExampleService.js";
 import { generateToken } from "./services/tokenService.js";
@@ -28,6 +28,7 @@ import { welcomeEmailHTML } from "./emails/newSignUp.js";
 import { samplePoemHTML } from "./emails/samplePoem.js";
 import getRandomPoem from "./database/poemDbApi.js";
 import { refreshScheduledDate, nextPaymentDate, getSubscriptionCost } from "./database/scheduleSetter.js";
+
 
 import engine from "ejs-mate";
 
@@ -441,7 +442,21 @@ app.post("/changedetails/update-details", ensureAuthenticated, async (req, res) 
           if (!addrRes || addrRes.rowCount === 0) {
             // No address row matched originalEmail — try matching by newEmail as fallback
             await updateUserAddress(newEmail, address);
-          }
+          }          
+        await markEmailUnverified(originalEmail);
+
+          // 2. Generate new verification token
+          const token = await generateToken(newEmail);
+
+          // 3. Send verification email
+          await sendEmail(
+            newEmail,
+            "Verify your new email",
+            verifyChangeEmailHTML(firstName, token)
+          );
+
+          console.log("Email changed — verification required:", newEmail);
+
         } else {
           // Email unchanged — update address normally
           await updateUserAddress(originalEmail, address);

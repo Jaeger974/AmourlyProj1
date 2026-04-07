@@ -3,108 +3,171 @@ export function samplePoemHTML(recipientName, poemTitle, poemAuthor, poemHTML) {
 const unwantedEmail =
 `http://localhost:3000/unwanted-email?recipient=${encodeURIComponent(recipientName)}`;
 
-  return `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Someone sent you an Amore 💘</title>
-</head>
-<body style="margin:0; padding:0; box-sizing:border-box; background-color:#1a0a0f; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif; font-size:16px; line-height:1.6; color:#2d1018;">
+  return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" lang="en">
+  <head>
+    <meta content="width=device-width" name="viewport" />
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <meta content="IE=edge" http-equiv="X-UA-Compatible" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <meta content="telephone=no,address=no,email=no,date=no,url=no" name="format-detection" />
 
-<div style="width:100%; padding:40px 16px; background-color:#1a0a0f;">
-  <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
-    <tbody>
-      <tr>
-        <td align="center">
-          <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="max-width:580px;">
-            <tbody>
-              <tr>
-                <td>
+    <style>
 
-                  <div style="max-width:580px; margin:0 auto; background-color:#fff5f5; border-radius:24px; overflow:hidden;">
 
-                    <!-- HEADER -->
-                    <div style="background-color:#c0344d; padding:36px 40px 28px; text-align:center;">
-                      <p style="font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:#f8b4c0; margin:0 0 10px 0;">
-                        Someone's thinking of you
+      body, html {
+        margin: 0;
+        padding: 0;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        background-color: #fff7fa;
+        color: #3a2a2a;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        border-radius: 12px;
+        padding: 32px;
+      }
+
+      h1 {
+        color: #b30059;
+        font-size: 30px;
+        margin-bottom: 12px;
+        text-align: center;
+      }
+
+      h2 {
+        color: #b30059;
+        font-size: 20px;
+        margin-top: 28px;
+        margin-bottom: 8px;
+      }
+
+      p {
+        line-height: 1.6;
+        font-size: 16px;
+        margin-bottom: 16px;
+      }
+
+      .stop-request {
+        text-align: center;
+        margin-top: 20px;
+        color: #7a6f6f;
+        text-decoration: none; 
+      }
+
+      .cta-button {
+        align: center;
+        display: inline-block;
+        background: #b30059;
+        color: #ffffff !important;
+        padding: 10px 15px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: bold;
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      .button-wrapper {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      .cta-button:hover {
+        background: #8a0047;
+      }
+
+      .footer {
+        text-align: center;
+        margin-top: 40px;
+        font-size: 13px;
+        color: #7a6f6f;
+      }
+
+      .divider {
+        height: 1px;
+        background: #ffe3ec;
+        margin: 24px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <table
+      align="center"
+      width="100%"
+      border="0"
+      cellpadding="0"
+      cellspacing="0"
+      role="presentation"
+      style="padding:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto','Oxygen','Ubuntu','Cantarell','Fira Sans','Droid Sans','Helvetica Neue',sans-serif;font-size:1.1em;line-height:155%;background-color:#fab7b7;"
+    >
+      <tbody>
+        <tr>
+          <td align="center">
+            <!-- INNER ROUNDED CARD -->
+            <table
+              align="center"
+              width="100%"
+              border="0"
+              cellpadding="0"
+              cellspacing="0"
+              role="presentation"
+              style="max-width:600px;background-color:#ff8b8b;border-radius:36px;padding:20px;"
+            >
+              <tbody>
+                <tr>
+                  <td align="center">
+                    <!-- CONTENT CONTAINER -->
+                    <div class="container">
+                      <h1>Someone's thinking of you 💘</h1>
+
+                      <p>You've been hit by an Amore</p>
+
+                      <p>
+                        Oop — guess what. Someone just dropped an Amore on you like a chaotic emotional grenade.<br /><br />
+                        Yep. A real human being thought, "You know who deserves unsolicited tenderness today?
+                        <em>You.</em>"
                       </p>
 
-                      <h1 style="font-size:28px; font-weight:700; color:#fff0f3; line-height:1.3; margin:0;">
-                        You've been hit by an Amore
-                      </h1>
+                      <div class="divider"></div>
 
-                      <span style="font-size:26px; display:block; margin-top:8px;">💘</span>
-                    </div>
+                      <h2>${poemTitle}</h2>
 
-                    <!-- BODY -->
-                    <div style="padding:36px 40px;">
+                      <h3>${poemAuthor}</h3>
+                      <p>${poemHTML}</p>
 
-                      <!-- Greeting -->
-                      <div style="background-color:#ffe0e5; border-left:4px solid #c0344d; border-radius:0 12px 12px 0; padding:18px 20px; margin-bottom:28px; color:#5a1020; font-size:15px;">
-                        <p style="margin:0;">
-                          Oop — guess what. Someone just dropped an Amore on you like a chaotic emotional grenade.<br><br>
-                          Yep. A real human being thought, "You know who deserves unsolicited tenderness today? <em>You.</em>"
-                        </p>
-                      </div>
-
-                      <div style="height:1px; background:linear-gradient(to right, transparent, #e8a0ad, transparent); margin:28px 0;"></div>
-
-                      <!-- Poem -->
-                      <div style="background-color:#3d0a18; border-radius:16px; padding:32px 28px; margin:8px 0; text-align:center;">
-                        <div style="font-size:20px; font-weight:700; color:#ffc8d0; margin-bottom:4px;">
-                          ${poemTitle}
-                        </div>
-
-                        <div style="font-size:13px; color:#e8a0ad; margin-bottom:24px; letter-spacing:0.04em;">
-                          by ${poemAuthor}
-                        </div>
-
-                        <div style="font-size:15px; color:#fff0f3; line-height:1.85; white-space:pre-line; text-align:left; font-style:italic;">
-                          ${poemHTML}
-                        </div>
-                      </div>
-
-                      <div style="height:1px; background:linear-gradient(to right, transparent, #e8a0ad, transparent); margin:28px 0;"></div>
-
-                      <!-- Opt-out -->
-                      <div style="margin-top:8px;">
-                        <p style="font-size:15px; color:#4a1822; margin:0 0 18px 0;">
-                          If you're not vibing with these poetic love‑bombs, you can tell Cupid to chill by clicking below.
-                        </p>
-
-                        <div style="text-align:center; margin:4px 0 8px;">
-                          <a href="${unwantedEmail}" 
-                             style="display:inline-block; background-color:transparent; color:#c0344d; text-decoration:none; font-size:13px; font-weight:600; letter-spacing:0.04em; padding:12px 24px; border-radius:50px; border:2px solid #c0344d;">
-                            Please stop emotionally ambushing me with poems.
-                          </a>
-                        </div>
-                      </div>
-
-                    </div>
-                    <!-- END BODY -->
-
-                    <!-- FOOTER -->
-                    <div style="border-top:1px solid #f0c4cc; padding:20px 40px; text-align:center; background-color:#fff5f5;">
-                      <p style="font-size:13px; color:#9a4455; margin:0;">
-                        Sent with chaotic affection by <strong style="color:#c0344d;">Amourly</strong> 💘
+                      <div class="divider"></div>
+                      <p>
+                        If you're not vibing with these poetic love‑bombs, you can tell Cupid to chill by clicking
+                        below.
                       </p>
+
+                      <p class="stop-request"> 
+                      <a href="${unwantedEmail}">Please stop emotionally ambushing me with poems.</a>
+                      </p>
+
+                      <div class="divider"></div>
+
+                      <div class="footer">
+                        <p>
+                          Sent with chaotic affection by
+                          <strong><a href="http://localhost:3000/">Amourly</a></strong> 💌
+                        </p>
+                      </div>
                     </div>
-
-                  </div>
-
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-</body>
-</html>
-  `;
+                    <!-- END CONTAINER -->
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <!-- END INNER CARD -->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>`;
 }

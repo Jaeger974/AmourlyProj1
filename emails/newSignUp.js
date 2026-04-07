@@ -1,168 +1,198 @@
 export function welcomeEmailHTML(firstName, token) {
   const verifyUrl = `http://localhost:3000/verify-email/${token}`;
   const dashboardUrl = `http://localhost:3000/login`;
+  const siteVisitUrl = `http://localhost:3000/`;
 
-  return `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Welcome to Amourly</title>
-</head>
-<body style="margin:0;padding:0;background-color:#1a0a0f;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto','Helvetica Neue',sans-serif;">
+  return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" lang="en">
+  <head>
+    <meta content="width=device-width" name="viewport" />
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <meta content="IE=edge" http-equiv="X-UA-Compatible" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <meta content="telephone=no,address=no,email=no,date=no,url=no" name="format-detection" />
 
-  <!-- OUTER WRAPPER -->
-  <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#1a0a0f;">
-    <tr>
-      <td align="center" style="padding:40px 16px;">
+    <style>
 
-        <!-- CARD TABLE (max-width via width attr) -->
-        <table align="center" width="580" border="0" cellpadding="0" cellspacing="0" role="presentation" style="max-width:580px;width:100%;background-color:#fff5f5;border-radius:24px;overflow:hidden;">
 
-          <!-- HEADER ROW -->
-          <tr>
-            <td align="center" bgcolor="#c0344d" style="background-color:#c0344d;padding:40px 40px 32px;border-radius:24px 24px 0 0;">
-              <p style="margin:0 0 10px 0;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:#f8b4c0;">Your love story starts here</p>
-              <h1 style="margin:0;font-size:32px;font-weight:700;color:#fff0f3;line-height:1.2;">Welcome to Amourly</h1>
-              <p style="margin:8px 0 0 0;font-size:28px;">💘</p>
-            </td>
-          </tr>
+      body, html {
+        margin: 0;
+        padding: 0;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        background-color: #fff7fa;
+        color: #3a2a2a;
+      }
 
-          <!-- INTRO ROW -->
-          <tr>
-            <td style="padding:36px 40px 0;">
-              <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        border-radius: 12px;
+        padding: 32px;
+      }
+
+      h1 {
+        color: #b30059;
+        font-size: 30px;
+        margin-bottom: 12px;
+        text-align: center;
+      }
+
+      h2 {
+        color: #b30059;
+        font-size: 20px;
+        margin-top: 28px;
+        margin-bottom: 8px;
+      }
+
+      p {
+        line-height: 1.6;
+        font-size: 16px;
+        margin-bottom: 16px;
+      }
+
+      .cta-button {
+        align: center;
+        display: inline-block;
+        background: #b30059;
+        color: #ffffff !important;
+        padding: 10px 15px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: bold;
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      .button-wrapper {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      .cta-button:hover {
+        background: #8a0047;
+      }
+
+      .footer {
+        text-align: center;
+        margin-top: 40px;
+        font-size: 13px;
+        color: #7a6f6f;
+      }
+
+      .divider {
+        height: 1px;
+        background: #ffe3ec;
+        margin: 24px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <table
+      align="center"
+      width="100%"
+      border="0"
+      cellpadding="0"
+      cellspacing="0"
+      role="presentation"
+      style="padding:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto','Oxygen','Ubuntu','Cantarell','Fira Sans','Droid Sans','Helvetica Neue',sans-serif;font-size:1.1em;line-height:155%;background-color:#fab7b7;"
+    >
+      <tbody>
+        <tr>
+          <td align="center">
+            <!-- INNER ROUNDED CARD -->
+            <table
+              align="center"
+              width="100%"
+              border="0"
+              cellpadding="0"
+              cellspacing="0"
+              role="presentation"
+              style="max-width:600px;background-color:#ff8b8b;border-radius:36px;padding:20px;"
+            >
+              <tbody>
                 <tr>
-                  <td style="background-color:#ffe0e5;border-left:4px solid #c0344d;border-radius:0 12px 12px 0;padding:18px 20px;">
-                    <p style="margin:0 0 10px;font-size:15px;color:#5a1020;line-height:1.6;">Omg hiiii ${firstName} — you absolute romantic menace. You've officially joined <strong style="color:#c0344d;">Amourly</strong>, the personalised‑poetry‑delivery‑service your significant other didn't know they needed but will now brag about forever.</p>
-                    <p style="margin:0;font-size:15px;color:#5a1020;line-height:1.6;">Think of us as your behind‑the‑scenes love‑gremlins. Cute, chaotic, and dangerously good with words.</p>
+                  <td align="center">
+                    <!-- CONTENT CONTAINER -->
+                    <div class="container">
+                      <h1>Welcome to Amourly 💘</h1>
+
+                      <p>
+                        Omg hiiii ${firstName} — you absolute romantic menace. You’ve officially joined <strong>Amourly</strong>, the
+                        personalised‑poetry‑delivery‑service your significant other didn’t know they needed but will now
+                        brag about forever.
+                      </p>
+
+                      <p>
+                        Think of us as your behind‑the‑scenes love‑gremlins. Cute, chaotic, and dangerously good with
+                        words.
+                      </p>
+
+                      <div class="divider"></div>
+
+                      <h2>So What Happens Now?</h2>
+                      <p>
+                        Simply verify your email below and we start crafting poetry that hits harder than a 3am “u up”
+                        text. You get to sit back, sip something aesthetic, and watch the romance unfold.
+                      </p>
+
+                      <p style="text-align:center;">
+                        👉 <a href=${verifyUrl} class="cta-button">Verify Here</a> 👈
+                      </p>
+
+                      <h2>Customise the Vibes</h2>
+                      <p>
+                        Add details about your partner, tweak your preferences, or just overshare (we love that for
+                        you).
+                      </p>
+
+                      <p>
+                        You can explore your dashboard, manage your subscription, or preview your upcoming poetry drops
+                        right here:
+                      </p>
+
+                      <p style="text-align:center;">
+                        👉 <a href=${dashboardUrl} class="cta-button">Go to your Dashboard</a> 👈
+                      </p>
+
+                      <h2>What Happens Next?</h2>
+                      <p>
+                        We’ll start crafting personalised poems based on the details you’ve shared. Expect charm,
+                        warmth, and a little edge — because love shouldn’t be boring.
+                      </p>
+
+                      <p>
+                        Want to update your preferences or add more details about your partner? You can do that anytime:
+                      </p>
+
+                      <p style="text-align:center;">
+                        👉 <a href=${dashboardUrl} class="cta-button">Update Preferences</a> 👈
+                      </p>
+
+                      <div class="divider"></div>
+
+                      <div class="sharefriend" style="text-align:center;">
+                        <h2>Entice a friend to sign up and get a month on us!</h2>
+                        <a href=${siteVisitUrl} class="cta-button">Hey, Checkout Amourly!</a>
+                      </div>
+
+                      <div class="footer">
+                        <p>
+                          Sent with chaotic affection by <strong>Amourly</strong> 💌 If you didn’t sign up… awkward.
+                          Just ignore me like my last ex.
+                        </p>
+                      </div>
+                    </div>
+                    <!-- END CONTAINER -->
                   </td>
                 </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- DIVIDER -->
-          <tr>
-            <td style="padding:28px 40px 0;">
-              <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
-                <tr><td style="height:1px;background-color:#e8a0ad;font-size:0;line-height:0;">&nbsp;</td></tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- SECTION: VERIFY -->
-          <tr>
-            <td style="padding:28px 40px 0;">
-              <p style="margin:0 0 10px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#c0344d;">So What Happens Now?</p>
-              <p style="margin:0 0 10px;font-size:15px;color:#4a1822;line-height:1.6;">Simply verify your email below and we start crafting poetry that hits harder than a 3am "u up" text. You get to sit back, sip something aesthetic, and watch the romance unfold.</p>
-            </td>
-          </tr>
-          <!-- VERIFY BUTTON -->
-          <tr>
-            <td align="center" style="padding:16px 40px 0;">
-              <table border="0" cellpadding="0" cellspacing="0" role="presentation">
-                <tr>
-                  <td align="center" bgcolor="#c0344d" style="background-color:#c0344d;border-radius:50px;border:2px solid #a02a40;">
-                    <a href="${verifyUrl}" style="display:inline-block;padding:13px 28px;font-size:14px;font-weight:600;letter-spacing:0.06em;color:#fff0f3;text-decoration:none;">Verify Here</a>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- SECTION: CUSTOMISE -->
-          <tr>
-            <td style="padding:28px 40px 0;">
-              <p style="margin:0 0 10px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#c0344d;">Customise the Vibes</p>
-              <p style="margin:0 0 10px;font-size:15px;color:#4a1822;line-height:1.6;">Add details about your partner, tweak your preferences, or just overshare (we love that for you).</p>
-              <p style="margin:0 0 10px;font-size:15px;color:#4a1822;line-height:1.6;">You can explore your dashboard, manage your subscription, or preview your upcoming poetry drops right here:</p>
-            </td>
-          </tr>
-          <!-- DASHBOARD BUTTON (outlined) -->
-          <tr>
-            <td align="center" style="padding:16px 40px 0;">
-              <table border="0" cellpadding="0" cellspacing="0" role="presentation">
-                <tr>
-                  <td align="center" style="border-radius:50px;border:2px solid #c0344d;">
-                    <a href="${dashboardUrl}" style="display:inline-block;padding:13px 28px;font-size:14px;font-weight:600;letter-spacing:0.06em;color:#c0344d;text-decoration:none;">Go to your Dashboard</a>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- SECTION: WHAT NEXT -->
-          <tr>
-            <td style="padding:28px 40px 0;">
-              <p style="margin:0 0 10px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#c0344d;">What Happens Next?</p>
-              <p style="margin:0 0 10px;font-size:15px;color:#4a1822;line-height:1.6;">We'll start crafting personalised poems based on the details you've shared. Expect charm, warmth, and a little edge — because love shouldn't be boring.</p>
-              <p style="margin:0;font-size:15px;color:#4a1822;line-height:1.6;">Want to update your preferences or add more details about your partner? You can do that anytime:</p>
-            </td>
-          </tr>
-          <!-- PREFERENCES BUTTON (outlined) -->
-          <tr>
-            <td align="center" style="padding:16px 40px 0;">
-              <table border="0" cellpadding="0" cellspacing="0" role="presentation">
-                <tr>
-                  <td align="center" style="border-radius:50px;border:2px solid #c0344d;">
-                    <a href="${dashboardUrl}?tab=preferences" style="display:inline-block;padding:13px 28px;font-size:14px;font-weight:600;letter-spacing:0.06em;color:#c0344d;text-decoration:none;">Update Preferences</a>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- DIVIDER -->
-          <tr>
-            <td style="padding:28px 40px 0;">
-              <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
-                <tr><td style="height:1px;background-color:#e8a0ad;font-size:0;line-height:0;">&nbsp;</td></tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- REFERRAL BLOCK -->
-          <tr>
-            <td style="padding:24px 40px 0;">
-              <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation">
-                <tr>
-                  <td align="center" bgcolor="#3d0a18" style="background-color:#3d0a18;border-radius:16px;padding:28px 24px;">
-                    <h2 style="margin:0 0 16px;font-size:16px;font-weight:700;color:#ffc8d0;line-height:1.4;">Entice a friend to sign up and get a month on us!</h2>
-                    <table border="0" cellpadding="0" cellspacing="0" role="presentation">
-                      <tr>
-                        <td align="center" bgcolor="#c0344d" style="background-color:#c0344d;border-radius:50px;border:2px solid #a02a40;">
-                          <a href="${dashboardUrl}" style="display:inline-block;padding:13px 28px;font-size:14px;font-weight:600;letter-spacing:0.06em;color:#fff0f3;text-decoration:none;">Hey, Checkout Amourly!</a>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- FOOTER -->
-          <tr>
-            <td align="center" style="padding:24px 40px;border-top:1px solid #f0c4cc;margin-top:24px;">
-              <!-- spacer -->
-            </td>
-          </tr>
-          <tr>
-            <td align="center" bgcolor="#fff5f5" style="background-color:#fff5f5;padding:0 40px 28px;border-radius:0 0 24px 24px;">
-              <p style="margin:0;font-size:13px;color:#9a4455;line-height:1.6;">Sent with chaotic affection by <strong style="color:#c0344d;">Amourly</strong> 💌<br>If you didn't sign up… awkward. Just ignore me like my last ex.</p>
-            </td>
-          </tr>
-
-        </table>
-        <!-- END CARD -->
-
-      </td>
-    </tr>
-  </table>
-
-</body>
-</html>
-  `;
+              </tbody>
+            </table>
+            <!-- END INNER CARD -->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>`;
 }
