@@ -386,6 +386,7 @@ background: linear-gradient(135deg, #fff0f2, #ffe5e8);
     background: #d11a2a;
     color: white;
     margin-top: 20px;
+    padding: 12px 24px;
     border-radius: 20px;
 }
 
@@ -393,7 +394,6 @@ background: linear-gradient(135deg, #fff0f2, #ffe5e8);
     background: #a3131f;
     transform: translateY(-2px);
 }
-
 
 /* ============================= */
 /* Responsive */

@@ -270,7 +270,9 @@ app.get("/deletefeedback", ensureAuthenticated, (req, res) => {
       text: "You account has been successfully deleted."
     });
 
-  res.render("/deletefeedback");
+  res.render("/deletefeedback.ejs", {
+    flash: req.flash("success")[0] || null
+  });
 });
 
 
@@ -391,17 +393,21 @@ app.post("/delete-account", ensureAuthenticated, async (req, res) => {
 
         res.clearCookie("connect.sid");
         console.log("User logged out and session destroyed after soft delete");
-        return res.redirect("/deletefeedback");
+        return res.redirect("/",{
+          flash: {
+          type: "success",
+          text: `The account associated with ${req.user.email} has been marked as deleted.`
+        }
       });
     });
-
+  })
   } catch (err) {
     console.error("Account deletion error:", err);
     return res.status(500).send("Server error during account deletion");
   }
 });
 
-app.post("/delete-feedback", async (req, res) => {
+app.post("/deletefeedback", async (req, res) => {
   try {
     const { reason, satisfaction, return_likelihood, comments } = req.body;
 
@@ -413,12 +419,15 @@ app.post("/delete-feedback", async (req, res) => {
       text: "Thank you for your feedback!"
     });
 
-    res.redirect("/");
+    res.redirect("/delete-account");
   } catch (err) {
     console.error("Feedback error:", err);
     res.status(500).send("Server error");
   }
 });
+
+
+
 
 app.post("/changedetails/update-details", ensureAuthenticated, async (req, res) => {
   try {
