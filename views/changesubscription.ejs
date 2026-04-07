@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit your subscription</title>
 
-        <link rel="stylesheet" href="css/changesub.css"/> 
+        <link rel="stylesheet" href="css/changesub.css"/>
+        <link rel="stylesheet" href="/css/alerts.css"> 
 </head>
 <body>
 
@@ -73,30 +74,30 @@
     </div>
 
         <select id="sub-type" name="sub_type" required> 
-        <option value="option1" <%= currentSub === 'option1' ? 'selected' : '' %>>
+        <option value="option1" <%= subscription.sub_type === 'option1' ? 'selected' : '' %>>
             School-ground Crush Subscription
         </option>
 
-        <option value="option2" <%= currentSub === 'option2' ? 'selected' : '' %>>
+        <option value="option2" <%= subscription.sub_type === 'option2' ? 'selected' : '' %>>
             New Love Subscription
         </option>
 
-        <option value="option3" <%= currentSub === 'option3' ? 'selected' : '' %>>
+        <option value="option3" <%= subscription.sub_type === 'option3' ? 'selected' : '' %>>
             Passionate Outpour Subscription
         </option>
     </select>
 
     <select id="freq-type" name="freq_type" required>
-        <option value="option1" <%= currentFreq === 'option1' ? 'selected' : '' %>>
+        <option value="option1" <%= subscription.freq_type === 'option1' ? 'selected' : '' %>>
             Fortnightly
         </option>
-        <option value="option2" <%= currentFreq === 'option2' ? 'selected' : '' %>>
+        <option value="option2" <%= subscription.freq_type === 'option2' ? 'selected' : '' %>>
             Monthly
         </option>
-        <option value="option3" <%= currentFreq === 'option3' ? 'selected' : '' %>>
+        <option value="option3" <%= subscription.freq_type === 'option3' ? 'selected' : '' %>>
             Every 2 Months
         </option>
-        <option value="option4" <%= currentFreq === 'option4' ? 'selected' : '' %>>
+        <option value="option4" <%= subscription.freq_type === 'option4' ? 'selected' : '' %>>
             Every 6 Months
         </option>
     </select>

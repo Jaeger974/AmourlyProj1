@@ -187,14 +187,14 @@ app.get("/forgotpassword", (req, res) => {
 
 app.get("/changesubscription", ensureAuthenticated, loadUserData, async (req, res) => {
   const flashMessage = req.flash("alert")[0] || null;
-  
-  try {
+  const subscription = res.locals.subscription;
 
-    const subscription = res.locals.subscription;
-    
+  try {
     res.render("changesubscription", {
-      currentSub: subscription.sub_type,
-      currentFreq: subscription.freq_type,
+      subscription: {
+        sub_type: subscription.sub_type,
+        freq_type: subscription.freq_type
+      },
       flash: flashMessage
     });
 
@@ -344,7 +344,8 @@ app.post("/yourdashboard/send-recipient-email", ensureAuthenticated, loadUserDat
        samplePoemHTML(recipientEmail, poem.title, poem.author, poemHTML)
     );
      const { rows: transactions } = await getUserTransactions(email);
-
+    console.log("Recipient email sent to:", recipientEmail);
+    
       return res.render("PS_account", {
         user: res.locals.user,
         subscription: res.locals.subscription,
