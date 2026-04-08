@@ -193,7 +193,9 @@ app.get("/changesubscription", ensureAuthenticated, loadUserData, async (req, re
     res.render("changesubscription", {
       subscription: {
         sub_type: subscription.sub_type,
-        freq_type: subscription.freq_type
+        freq_type: subscription.freq_type,  
+        recipient_email: subscription.recipient_email,
+        preferences: subscription.preferences || 'N/A'
       },
       flash: flashMessage
     });
