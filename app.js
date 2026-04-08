@@ -263,14 +263,14 @@ app.get("/logout", (req, res, next) => {
 });
 
 
-app.get("/deletefeedback", ensureAuthenticated, (req, res) => {
+app.get("/deletefeedback", (req, res) => {
 
    req.flash("success", {
       type: "info",
       text: "You account has been successfully deleted."
     });
 
-  res.render("/deletefeedback.ejs", {
+  res.render("deletefeedback", {
     flash: req.flash("success")[0] || null
   });
 });
@@ -370,59 +370,48 @@ app.post("/yourdashboard/send-recipient-email", ensureAuthenticated, loadUserDat
 });
 
 
-app.post("/delete-account", ensureAuthenticated, async (req, res) => {
+app.post("/deletefeedback", ensureAuthenticated, async (req, res) => {
   try {
-    await softDeleteUserByEmail(req.user.email);
+    const email = req.user.email;
+    const { reason, satisfaction, return_likelihood, comments } = req.body;
 
+    // 1. Save feedback
+    await saveFeedback(reason, satisfaction, return_likelihood, comments);
+
+    // 2. Soft delete the user
+    await softDeleteUserByEmail(email);
+
+    // 3. Flash BEFORE logout/session destruction
+    req.flash("alert", {
+      type: "success",
+      text: `Your account has been deleted. Thank you for your feedback.`
+    });
+    console.log("User feedback saved and account marked deleted for:", email);
+    // 4. Log the user out
     req.logout(err => {
       if (err) {
         console.error("Logout error:", err);
         return res.status(500).send("Server error during logout");
       }
 
-      req.flash("alert", {
-        type: "info",
-        text: "Your account has been marked as deleted and you have been logged out."
-      });
-
+      // 5. Destroy the session
       req.session.destroy(err => {
         if (err) {
           console.error("Session destruction error:", err);
           return res.status(500).send("Server error during session destruction");
         }
 
+        // 6. Clear cookie
         res.clearCookie("connect.sid");
-        console.log("User logged out and session destroyed after soft delete");
-        return res.redirect("/",{
-          flash: {
-          type: "success",
-          text: `The account associated with ${req.user.email} has been marked as deleted.`
-        }
+
+        // 7. Redirect home
+        return res.redirect("/");
       });
     });
-  })
+
   } catch (err) {
-    console.error("Account deletion error:", err);
+    console.error("Delete-feedback error:", err);
     return res.status(500).send("Server error during account deletion");
-  }
-});
-
-app.post("/deletefeedback", async (req, res) => {
-  try {
-    const { reason, satisfaction, return_likelihood, comments } = req.body;
-
-    // Save to DB or CSV here
-    await saveFeedback(reason, satisfaction, return_likelihood, comments);
-
-    req.flash("alert", {
-      type: "success",
-      text: "Thank you for your feedback!"
-    });
-
-    res.redirect("/delete-account");
-  } catch (err) {
-    console.error("Feedback error:", err);
-    res.status(500).send("Server error");
   }
 });
 
