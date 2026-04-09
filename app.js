@@ -137,6 +137,7 @@ app.get("/yourdashboard", ensureAuthenticated, loadUserData, async (req, res) =>
   const nextPayment = await nextPaymentDate(email);
   const scheduledDate = await getDeliveryDate(email);
   const subscriptionCost = await getSubscriptionCost(email);
+  const emailPreviewUrl = await sendEmail(email);
 
     if (!res.locals.subscription) {
       return res.redirect("/changesubscription");
@@ -151,6 +152,7 @@ app.get("/yourdashboard", ensureAuthenticated, loadUserData, async (req, res) =>
       nextPayment,
       subscriptionCost,
       poemHTML,
+      emailPreviewUrl,
       flash: flashMessage,
     });
 
@@ -342,11 +344,12 @@ app.post("/yourdashboard/send-recipient-email", ensureAuthenticated, loadUserDat
     const poemHTML = poem.lines.map(line => `${line}<br>`).join("");
 
 
-    await sendEmail(
-      recipientEmail,
-       "You've been Amored! 💘",
-       samplePoemHTML(recipientEmail, poem.title, poem.author, poemHTML)
-    );
+const { emailPreviewUrl } = await sendEmail(
+  recipientEmail,
+  "You've been Amored! 💘",
+  samplePoemHTML(recipientEmail, poem.title, poem.author, poemHTML)
+);
+
      const { rows: transactions } = await getUserTransactions(email);
     console.log("Recipient email sent to:", recipientEmail);
     
@@ -358,11 +361,12 @@ app.post("/yourdashboard/send-recipient-email", ensureAuthenticated, loadUserDat
         nextPayment,
         scheduledDate,
         poem,
+        emailPreviewUrl,
         poemHTML,
         flash: {
           type: "success",
           text: `An Amore has been sent to ${recipientEmail}!`
-        }
+  }
       });
 
   } catch (err) {

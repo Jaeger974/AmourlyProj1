@@ -8,15 +8,18 @@ async function initEthereal() {
   if (!testAccount) {
     testAccount = await nodemailer.createTestAccount();
 
-    transporter = nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
-      secure: false,
-      auth: {
-        user: testAccount.user,
-        pass: testAccount.pass
-      }
-    });
+transporter = nodemailer.createTransport({
+  host: "smtp.ethereal.email",
+  port: 587,
+  secure: false,
+  auth: {
+    user: testAccount.user,
+    pass: testAccount.pass
+  },
+  tls: {
+    rejectUnauthorized: false
+  }
+});
 
     console.log("Ethereal test account created:");
     console.log("User:", testAccount.user);
@@ -37,7 +40,9 @@ export async function sendEmail(to, subject, html) {
   console.log("Email sent. Preview URL:");
   console.log(nodemailer.getTestMessageUrl(info));
 
-  return info;
+const emailPreviewUrl = nodemailer.getTestMessageUrl(info);
+return emailPreviewUrl;
+
 }
 
 export default sendEmail;

@@ -75,9 +75,14 @@ body {
     margin-bottom: 10px;
 }
 
-#account-overview p {
+#account-overview p, #email-preview {
     font-size: 18px;
     color: #444;
+}
+
+#email-preview {
+    margin-top: 15px;
+    font-style: italic;
 }
 
 #recipient-detail {
@@ -234,11 +239,11 @@ button {
     border: none;
     font-weight: 600;
     cursor: pointer;
-
     transition: all 0.3s ease;
 }
 
 /* Primary buttons */
+#email-preview-btn,
 .edit-details-button,
 .change-password-button,
 .manage-subscription-button,
@@ -249,6 +254,7 @@ button {
     border-radius: 20px;
 }
 
+#email-preview-btn:hover,
 .edit-details-button:hover,
 .change-password-button:hover,
 .manage-subscription-button:hover,
@@ -259,6 +265,7 @@ button {
 }
 
 /* Edit inline buttons */
+
 .edit-button,
 .edit-button-email {
     background: #A02c3e;
@@ -266,6 +273,7 @@ button {
     margin-left: 10px;
     border-radius: 20px;
 }
+
 
 .edit-button:hover,
 .edit-button-email:hover {
