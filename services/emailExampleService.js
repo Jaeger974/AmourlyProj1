@@ -1,19 +1,43 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let testAccount = null;
+let transporter = null;
 
-export async function sendEmail(to, subject, html) {
-  try {
-    return await resend.emails.send({
-      from: "onboarding@resend.dev",
-      to,
-      subject,
-      html
+// Create Ethereal test account ONCE
+async function initEthereal() {
+  if (!testAccount) {
+    testAccount = await nodemailer.createTestAccount();
+
+    transporter = nodemailer.createTransport({
+      host: "smtp.ethereal.email",
+      port: 587,
+      secure: false,
+      auth: {
+        user: testAccount.user,
+        pass: testAccount.pass
+      }
     });
-  } catch (err) {
-    console.error("Email send error:", err);
-    throw err;
+
+    console.log("Ethereal test account created:");
+    console.log("User:", testAccount.user);
+    console.log("Pass:", testAccount.pass);
   }
 }
 
-export default sendEmail
+export async function sendEmail(to, subject, html) {
+  await initEthereal();
+
+  const info = await transporter.sendMail({
+    from: `"Poetry Subscription" <no-reply@example.com>`,
+    to,
+    subject,
+    html
+  });
+
+  console.log("Email sent. Preview URL:");
+  console.log(nodemailer.getTestMessageUrl(info));
+
+  return info;
+}
+
+export default sendEmail;

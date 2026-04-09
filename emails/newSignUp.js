@@ -137,7 +137,7 @@ export function welcomeEmailHTML(firstName, token) {
                       </p>
 
                       <p style="text-align:center;">
-                        👉 <a href=${verifyUrl} class="cta-button">Verify Here</a> 👈
+                        👉 <a href="${verifyUrl}" class="cta-button">Verify Here</a> 👈
                       </p>
 
                       <h2>Customise the Vibes</h2>
@@ -152,7 +152,8 @@ export function welcomeEmailHTML(firstName, token) {
                       </p>
 
                       <p style="text-align:center;">
-                        👉 <a href=${dashboardUrl} class="cta-button">Go to your Dashboard</a> 👈
+                        👉 <a href="${dashboardUrl}" class="cta-button">Go to your Dashboard</a>
+ 👈
                       </p>
 
                       <h2>What Happens Next?</h2>
@@ -166,14 +167,14 @@ export function welcomeEmailHTML(firstName, token) {
                       </p>
 
                       <p style="text-align:center;">
-                        👉 <a href=${dashboardUrl} class="cta-button">Update Preferences</a> 👈
+                        👉 <a href="${dashboardUrl}" class="cta-button">Update Preferences</a> 👈
                       </p>
 
                       <div class="divider"></div>
 
                       <div class="sharefriend" style="text-align:center;">
                         <h2>Entice a friend to sign up and get a month on us!</h2>
-                        <a href=${siteVisitUrl} class="cta-button">Hey, Checkout Amourly!</a>
+                        <a href="${siteVisitUrl}" class="cta-button">Hey, Checkout Amourly!</a>
                       </div>
 
                       <div class="footer">
