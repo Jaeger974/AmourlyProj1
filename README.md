@@ -1,5 +1,5 @@
 # jmwebdev.io
-JSAMPortfolio_V1
+AmourlySubProj1
 
 
 # Amourly Subscription Service
