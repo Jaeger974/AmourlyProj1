@@ -72,7 +72,9 @@ app.use(passport.session());
 
 
 app.get("/", (req, res) => {
-    res.render("PoetrySub");
+    res.render("PoetrySub", {
+      flash: req.flash("alert")[0] || null
+    });
 });
 
 app.get("/login", (req, res) => {
