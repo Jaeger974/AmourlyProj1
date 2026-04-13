@@ -72,10 +72,13 @@ app.use(passport.session());
 
 
 app.get("/", (req, res) => {
-    res.render("PoetrySub", {
-      flash: req.flash("alert")[0] || null
-    });
+  const alert = req.flash("alert")[0];
+
+  res.render("PoetrySub", {
+    flash: alert || { text: null, type: null }
+  });
 });
+
 
 app.get("/login", (req, res) => {
   res.render("PS_login", { 
@@ -99,8 +102,6 @@ app.get("/HowitWorks", (req, res) => {
 
   res.render("PS_HowitWorks", { faqs });
 });
-
-
 
 app.get("/payment", loadUserData, (req, res) => {
 
@@ -126,8 +127,6 @@ app.get("/payment", loadUserData, (req, res) => {
     }
 
 });
-
-
 
 app.get("/yourdashboard", ensureAuthenticated, loadUserData, async (req, res) => {
   const flashMessage = req.flash("alert")[0] || null;
@@ -159,8 +158,6 @@ app.get("/yourdashboard", ensureAuthenticated, loadUserData, async (req, res) =>
     });
 
 });
-
-
 
 app.get("/changedetails", ensureAuthenticated, loadUserData, (req, res) => {
   const flashMessage = req.flash("alert")[0] || null;
@@ -217,9 +214,6 @@ app.get("/newsignup", (req, res) => {
     title: "Register New Account",
     heading: "Join Our Poetry Subscription Service",
     flash: req.flash("alert")[0] || null,
-
-    // If user came from howitworks.ejs, these will be strings like "option3"
-    // If not, they will be undefined → we convert to null
     sub_type: sub_type || null,
     freq_type: freq_type || null
   });
