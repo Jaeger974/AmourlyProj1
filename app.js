@@ -153,7 +153,6 @@ app.get("/yourdashboard", ensureAuthenticated, loadUserData, async (req, res) =>
       nextPayment,
       subscriptionCost,
       poemHTML,
-      emailPreviewUrl: null, 
       flash: flashMessage,
     });
 
@@ -340,7 +339,7 @@ app.post("/yourdashboard/send-recipient-email", ensureAuthenticated, loadUserDat
     const poemHTML = poem.lines.map(line => `${line}<br>`).join("");
 
 
-const emailPreviewUrl = await sendEmail(
+  await sendEmail(
   recipientEmail,
   "You've been Amored! 💘",
   samplePoemHTML(recipientEmail, poem.title, poem.author, poemHTML)
@@ -357,7 +356,6 @@ const emailPreviewUrl = await sendEmail(
         nextPayment,
         scheduledDate,
         poem,
-        emailPreviewUrl,
         poemHTML,
         flash: {
           type: "success",

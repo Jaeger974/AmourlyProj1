@@ -75,14 +75,9 @@ body {
     margin-bottom: 10px;
 }
 
-#account-overview p, #email-preview {
+#account-overview p {
     font-size: 18px;
     color: #444;
-}
-
-#email-preview {
-    margin-top: 15px;
-    font-style: italic;
 }
 
 #recipient-detail {
@@ -243,7 +238,6 @@ button {
 }
 
 /* Primary buttons */
-#email-preview-btn,
 .edit-details-button,
 .change-password-button,
 .manage-subscription-button,
@@ -254,7 +248,6 @@ button {
     border-radius: 20px;
 }
 
-#email-preview-btn:hover,
 .edit-details-button:hover,
 .change-password-button:hover,
 .manage-subscription-button:hover,
