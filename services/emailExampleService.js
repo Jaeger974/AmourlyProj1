@@ -1,48 +1,44 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import nodemailer from "nodemailer";
 
-let testAccount = null;
-let transporter = null;
+// Transporter is created once and reused across all email sends
 
-// Create Ethereal test account ONCE
-async function initEthereal() {
-  if (!testAccount) {
-    testAccount = await nodemailer.createTestAccount();
-
-transporter = nodemailer.createTransport({
-  host: "smtp.ethereal.email",
-  port: 587,
-  secure: false,
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT),
+  secure: false, // STARTTLS — Brevo uses this on port 587
   auth: {
-    user: testAccount.user,
-    pass: testAccount.pass
+    user: process.env.SMTP_USER, // Your Brevo login email
+    pass: process.env.SMTP_PASS,  // Your Brevo SMTP key (not account password)
   },
-  tls: {
+    tls: {
     rejectUnauthorized: false
-  }
+    }
 });
 
-    console.log("Ethereal test account created:");
-    console.log("User:", testAccount.user);
-    console.log("Pass:", testAccount.pass);
-  }
-}
-
+/**
+ * Sends an email via Brevo SMTP.
+ *
+ * @param {string} to      - Recipient email address
+ * @param {string} subject - Email subject line
+ * @param {string} html    - HTML body (pass in your template function's output)
+ * @returns {Promise<void>}
+ *
+ * Usage examples:
+ *   sendEmail(user.email, "Welcome to Amourly!", welcomeEmailHTML(user.firstName, token))
+ *   sendEmail(partner.email, "You've got a poem!", poemEmailHTML(poem, senderName))
+ */
 export async function sendEmail(to, subject, html) {
-  await initEthereal();
-
   const info = await transporter.sendMail({
-    from: `"Poetry Subscription" <no-reply@example.com>`,
+    from: `"Amourly" <dynamic.kandj@gmail.com>`,
     to,
     subject,
-    html
+    html,
   });
 
-  console.log("Email sent. Preview URL:");
-  console.log(nodemailer.getTestMessageUrl(info));
-
-const emailPreviewUrl = nodemailer.getTestMessageUrl(info);
-return emailPreviewUrl;
-
+  console.log(`Email sent to ${to} — Message ID: ${info.messageId}`);
 }
 
 export default sendEmail;
