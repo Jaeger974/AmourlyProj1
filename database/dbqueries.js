@@ -12,12 +12,12 @@ export async function addNewUserData(email, firstName, lastName, username, hashe
 }
 
 // New addresses also should not be soft-delete filtered
-export async function addAddress(accountEmail, recipient_email, accountAddress, recipientAddress, subType, freqType, preferences, startDate ) {
+export async function addAddress(accountEmail, recipient_email, accountAddress, recipientAddress, subType, freqType, preferences, startDate, unsubscribeToken ) {
   return db.query(
-    `INSERT INTO addresses (account_email, recipient_email, account_address, recipient_address, sub_type, freq_type, preferences, scheduled_send_date, sign_up_date)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    `INSERT INTO addresses (account_email, recipient_email, account_address, recipient_address, sub_type, freq_type, preferences, scheduled_send_date, sign_up_date, unsubscribe_token)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
      RETURNING *`,
-    [accountEmail, recipient_email, accountAddress, recipientAddress, subType, freqType, preferences, startDate, new Date()]
+    [accountEmail, recipient_email, accountAddress, recipientAddress, subType, freqType, preferences, startDate, new Date(), unsubscribeToken]
   );
 }
 
@@ -247,4 +247,36 @@ export async function verifyUserEmail(email) {
     `UPDATE logins SET email_verified = true WHERE email = $1`,
     [email]
   );
+}
+
+
+// New function to check if recipient is suspended before sending email
+export async function isRecipientSuspended(accountEmail) {
+  console.log("DB RECEIVED:", accountEmail, typeof accountEmail);
+
+  const result = await db.query(
+    `SELECT suspended_send FROM addresses WHERE account_email = $1`,
+    [accountEmail]
+  );
+
+  return result.rows[0]?.suspended_send || false;
+}
+
+// New function to suspend recipient by token (used in the unsubscribe route)
+export async function suspendRecipientByToken(token) {
+  return db.query(
+    `UPDATE addresses 
+     SET suspended_send = true, suspended_at = NOW() 
+     WHERE unsubscribe_token = $1`,
+    [token]
+  );
+}
+
+// New function to get email address by unsubscribe token (used in the unsubscribe route)
+export async function getAddressByUnsubscribeToken(token) {
+  const result = await db.query(
+    `SELECT * FROM addresses WHERE unsubscribe_token = $1`,
+    [token]
+  );
+  return result.rows[0] || null;
 }

@@ -18,7 +18,8 @@ import { addNewUserData, saveFeedback, addAddress,
   updateRecipientPreferences, changeUserPassword, softDeleteUserByEmail, 
   updateSubscription, updateUserAddress, updateSubscriptionWithAddress, 
   updateRecipientDetails, updateUserProfile, getUserTransactions,
-  saveVerificationToken, retrieveRecipientEmail, getDeliveryDate, markEmailUnverified
+  saveVerificationToken, retrieveRecipientEmail, getDeliveryDate, markEmailUnverified, 
+  isRecipientSuspended, suspendRecipientByToken, getAddressByUnsubscribeToken
 } from "./database/dbqueries.js";
 import { sendEmail } from "./services/emailExampleService.js";
 import { generateToken } from "./services/tokenService.js";
@@ -28,6 +29,7 @@ import { welcomeEmailHTML } from "./emails/newSignUp.js";
 import { samplePoemHTML } from "./emails/samplePoem.js";
 import getRandomPoem from "./database/poemDbApi.js";
 import { refreshScheduledDate, nextPaymentDate, getSubscriptionCost } from "./database/scheduleSetter.js";
+import suspensionHandler from "./emails/suspensionhandler.js";
 
 
 import engine from "ejs-mate";
@@ -43,6 +45,7 @@ const saltRounds = 10;
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public/static_files')));
+app.use("/", suspensionHandler);
 
 app.use(
   session({
@@ -138,7 +141,7 @@ app.get("/yourdashboard", ensureAuthenticated, loadUserData, async (req, res) =>
   const nextPayment = await nextPaymentDate(email);
   const scheduledDate = await getDeliveryDate(email);
   const subscriptionCost = await getSubscriptionCost(email);
-
+console.log("SUSP CHECK VALUE:", req.user.email, typeof req.user.email);
 
     if (!res.locals.subscription) {
       return res.redirect("/changesubscription");
@@ -290,6 +293,7 @@ app.post("/login",
     failureRedirect: "/login",
     failureFlash: true,
   })
+  
 );
 
 app.post("/yourdashboard", ensureAuthenticated, loadUserData, async (req, res) => {
@@ -320,9 +324,21 @@ app.post("/yourdashboard", ensureAuthenticated, loadUserData, async (req, res) =
 });
 
 app.post("/yourdashboard/send-recipient-email", ensureAuthenticated, loadUserData, async (req, res) => {
-  
+
+
   try {
     const email = req.user.email;
+    const suspended = await isRecipientSuspended(req.user.email);
+
+      if (suspended) {
+        req.flash("alert", {
+          type: "info",
+          text: `The recipient email is currently suspended and cannot receive Amores.`,
+        });
+
+        return res.redirect("/yourdashboard");
+      }
+
     const result = await retrieveRecipientEmail(email);
 
     if (result.rows.length === 0) { 
@@ -337,12 +353,12 @@ app.post("/yourdashboard/send-recipient-email", ensureAuthenticated, loadUserDat
     const recipientEmail = result.rows[0].recipient_email;
     const poem = await getRandomPoem();
     const poemHTML = poem.lines.map(line => `${line}<br>`).join("");
-
-
+    const unsubscribeToken = result.rows[0].unsubscribe_token;
+    
   await sendEmail(
   recipientEmail,
   "You've been Amored! 💘",
-  samplePoemHTML(recipientEmail, poem.title, poem.author, poemHTML)
+  samplePoemHTML(recipientEmail, poem.title, poem.author, poemHTML, unsubscribeToken)
 );
 
      const { rows: transactions } = await getUserTransactions(email);
@@ -497,8 +513,9 @@ app.post("/newsignup", async (req, res) => {
 
     const newUserResult = await addNewUserData(email, firstName, lastName, username, hashedPassword);
     const newUser = newUserResult.rows[0];
+    const unsubscribeToken = generateToken();
 
-    await addAddress(email, recipientEmail, account_address, recipient_address, sub_type, freq_type, preferences, startDate);
+    await addAddress(email, recipientEmail, account_address, recipient_address, sub_type, freq_type, preferences, startDate, unsubscribeToken);
 
     req.login(newUser, async (err) => {
       if (err) return res.status(500).send("Server error");

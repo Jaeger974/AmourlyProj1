@@ -1,7 +1,8 @@
-export function samplePoemHTML(recipientName, poemTitle, poemAuthor, poemHTML) {
+export function samplePoemHTML(recipientName, poemTitle, poemAuthor, poemHTML, unsubscribeToken) {
 
-const unwantedEmail =
-`http://localhost:3000/unwanted-email?recipient=${encodeURIComponent(recipientName)}`;
+const unwantedEmail = 
+  `http://localhost:3000/unwanted-email?token=${unsubscribeToken}`;
+
 
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html dir="ltr" lang="en">

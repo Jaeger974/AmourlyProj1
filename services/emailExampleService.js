@@ -31,14 +31,25 @@ const transporter = nodemailer.createTransport({
  *   sendEmail(partner.email, "You've got a poem!", poemEmailHTML(poem, senderName))
  */
 export async function sendEmail(to, subject, html) {
-  const info = await transporter.sendMail({
+  try{
+    const info = await transporter.sendMail({
     from: `"Amourly" <dynamic.kandj@gmail.com>`,
     to,
     subject,
     html,
   });
 
-  console.log(`Email sent to ${to} — Message ID: ${info.messageId}`);
+
+console.log(`Email sent to ${to} — Message ID: ${info.messageId}`);
+  } catch (err) {
+    console.error(`Failed to send email to ${to}`);
+    console.error(`Subject: ${subject}`);
+    console.error(`Reason: ${err.message}`);
+
+    // Re-throw so the calling code knows the email failed
+    // and can handle it (e.g. return a 500, show a UI error)
+    throw err;
+  }
 }
 
 export default sendEmail;
