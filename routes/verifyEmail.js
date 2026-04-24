@@ -1,6 +1,7 @@
 import express from "express";
-import pool from "../db.js"; 
+import db from "../database/db.js"; 
 import passport from "passport";
+import { debug } from "console";
 
 const router = express.Router();
 
@@ -9,8 +10,8 @@ router.get("/verify-email/:token", async (req, res) => {
 
   try {
     // 1. Look up token
-    const tokenResult = await pool.query(
-      "SELECT email, created_at FROM email_verification_token WHERE token = $1",
+    const tokenResult = await db.query(
+      "SELECT email, created_at FROM email_verification_tokens WHERE token = $1",
       [token]
     );
 
@@ -29,13 +30,13 @@ router.get("/verify-email/:token", async (req, res) => {
     }
 
     // 3. Mark user as verified
-    await pool.query(
+    await db.query(
       `UPDATE logins SET email_verified = true WHERE email = $1`,
       [email]
     );
 
     // 4. Fetch the user so we can log them in
-    const userResult = await pool.query(
+    const userResult = await db.query(
       "SELECT id, email FROM logins WHERE email = $1",
       [email]
     );
@@ -43,8 +44,8 @@ router.get("/verify-email/:token", async (req, res) => {
     const user = userResult.rows[0];
 
     // 5. Delete token
-    await pool.query(
-      "DELETE FROM email_verification_token WHERE token = $1",
+    await db.query(
+      "DELETE FROM email_verification_tokens WHERE token = $1",
       [token]
     );
 

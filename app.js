@@ -29,7 +29,6 @@ import { welcomeEmailHTML } from "./emails/newSignUp.js";
 import { samplePoemHTML } from "./emails/samplePoem.js";
 import getRandomPoem from "./database/poemDbApi.js";
 import { refreshScheduledDate, nextPaymentDate, getSubscriptionCost } from "./database/scheduleSetter.js";
-import suspensionHandler from "./emails/suspensionhandler.js";
 
 
 import engine from "ejs-mate";
@@ -45,7 +44,7 @@ const saltRounds = 10;
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public/static_files')));
-app.use("/", suspensionHandler);
+
 
 app.use(
   session({
@@ -72,6 +71,10 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
+import suspensionHandler from "./emails/suspensionhandler.js";
+import verifyEmailRouter from "./routes/verifyEmail.js";
+app.use("/", suspensionHandler);
+app.use("/", verifyEmailRouter);
 
 
 app.get("/", (req, res) => {
@@ -219,6 +222,10 @@ app.get("/newsignup", (req, res) => {
     sub_type: sub_type || null,
     freq_type: freq_type || null
   });
+});
+
+app.get("/verified", (req, res) => {
+  res.render("verified");
 });
 
 
