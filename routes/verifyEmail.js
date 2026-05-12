@@ -1,7 +1,6 @@
 import express from "express";
 import db from "../database/db.js"; 
 import passport from "passport";
-import { debug } from "console";
 
 const router = express.Router();
 
